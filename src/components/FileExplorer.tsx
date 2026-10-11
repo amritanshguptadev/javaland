@@ -161,22 +161,22 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           style={{ paddingLeft: `${depth * 14 + 10}px` }}
           className={`group flex items-center gap-1.5 py-1.5 pr-3 text-xs cursor-pointer transition-all rounded-lg mx-1 my-0.5 ${
             isSelected
-              ? 'bg-gradient-to-r from-amber-500/20 to-yellow-500/10 text-amber-900 font-bold border-l-3 border-amber-500 dark:text-amber-300'
-              : 'text-slate-700 hover:bg-amber-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/80 dark:hover:text-white'
+              ? 'theme-surface-elevated font-bold theme-text-main border-l-2 theme-border-strong shadow-xs'
+              : 'theme-text-muted hover:theme-surface-subtle hover:theme-text-main'
           }`}
           title={`${node.path}${node.size !== undefined ? ` (${formatFileSize(node.size)})` : ''}`}
         >
           {isFolder ? (
             <span className="flex items-center gap-1">
               {isExpanded ? (
-                <ChevronDown className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                <ChevronDown className="h-3.5 w-3.5 opacity-80" />
               ) : (
-                <ChevronRight className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                <ChevronRight className="h-3.5 w-3.5 opacity-80" />
               )}
               {isExpanded ? (
-                <FolderOpen className="h-4 w-4 text-amber-500 shrink-0" />
+                <FolderOpen className="h-4 w-4 opacity-90 shrink-0" />
               ) : (
-                <Folder className="h-4 w-4 text-amber-500 shrink-0" />
+                <Folder className="h-4 w-4 opacity-90 shrink-0" />
               )}
             </span>
           ) : (
@@ -188,7 +188,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           <span className="truncate flex-1 font-mono tracking-tight text-xs">{node.name}</span>
 
           {!isFolder && node.size !== undefined && (
-            <span className="text-[10px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="text-[10px] theme-text-muted opacity-0 group-hover:opacity-100 transition-opacity">
               {formatFileSize(node.size)}
             </span>
           )}
@@ -205,16 +205,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   }
 
   return (
-    <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-amber-200/60 dark:border-amber-500/20 text-slate-800 dark:text-slate-200">
+    <div className="flex h-full flex-col theme-surface border-r theme-border theme-text-main">
       {/* Search & Actions Header */}
-      <div className="p-2.5 border-b border-amber-200/50 dark:border-slate-800 space-y-2">
+      <div className="p-2.5 border-b theme-border space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">
+            <span className="text-xs font-bold uppercase tracking-wider theme-text-main">
               Explorer
             </span>
             {totalMatches !== null && (
-              <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
+              <span className="rounded-full theme-surface-elevated border theme-border px-2 py-0.5 text-[10px] font-bold theme-text-main">
                 {totalMatches} found
               </span>
             )}
@@ -224,7 +224,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               type="button"
               onClick={handleExpandAll}
               title="Expand all folders"
-              className="rounded p-1 text-slate-500 hover:bg-amber-50 hover:text-amber-700 dark:text-slate-400 dark:hover:bg-slate-850"
+              className="rounded p-1 theme-text-muted hover:theme-surface-subtle hover:theme-text-main cursor-pointer"
             >
               <ChevronsUpDown className="h-3.5 w-3.5" />
             </button>
@@ -232,7 +232,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               type="button"
               onClick={handleCollapseAll}
               title="Collapse all folders"
-              className="rounded px-1.5 py-0.5 text-slate-500 hover:bg-amber-50 hover:text-amber-700 dark:text-slate-400 text-[10px]"
+              className="rounded px-1.5 py-0.5 theme-text-muted hover:theme-surface-subtle hover:theme-text-main text-[10px] cursor-pointer"
             >
               Collapse
             </button>
@@ -241,19 +241,19 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
 
         {/* Search input */}
         <div className="relative">
-          <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 text-amber-500" />
+          <Search className="pointer-events-none absolute left-2.5 top-2 h-3.5 w-3.5 opacity-60" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Filter files..."
-            className="w-full rounded-lg border border-amber-200/80 bg-amber-50/40 py-1.5 pl-8 pr-7 text-xs text-slate-800 placeholder-slate-400 focus:border-amber-500 focus:outline-none dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+            className="w-full rounded-lg border theme-border theme-surface-subtle py-1.5 pl-8 pr-7 text-xs theme-text-main placeholder-slate-400 focus:outline-none"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-2 text-slate-400 hover:text-slate-600"
+              className="absolute right-2 top-2 theme-text-muted hover:theme-text-main cursor-pointer"
             >
               <X className="h-3.5 w-3.5" />
             </button>

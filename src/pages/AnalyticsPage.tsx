@@ -80,37 +80,37 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
   }, [tree])
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+    <div className="flex-1 overflow-y-auto p-4 md:p-8 max-w-7xl mx-auto space-y-8 theme-page">
       {/* Page Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-amber-200/50 pb-4 dark:border-amber-500/20">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b theme-border pb-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
-            <BarChart3 className="h-3.5 w-3.5" />
+          <div className="inline-flex items-center gap-1.5 rounded-full border theme-border theme-surface-subtle px-3 py-1 text-xs font-bold theme-text-main">
+            <BarChart3 className="h-3.5 w-3.5 opacity-80" />
             <span>Repository Intelligence</span>
           </div>
-          <h1 className="mt-2 text-2xl font-black text-slate-900 dark:text-white md:text-3xl">
+          <h1 className="mt-2 text-2xl font-black theme-text-main md:text-3xl">
             Analytics & Structure <span className="gold-gradient-text">Metrics</span>
           </h1>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs theme-text-muted">
             Quantitative analysis of code composition, size metrics, and directory distribution.
           </p>
         </div>
 
         {repo && (
           <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
-            <div className="rounded-xl border border-amber-300/80 bg-white p-2.5 text-right shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <span className="text-[10px] font-medium text-slate-400">Branch:</span>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400">
-                <GitBranch className="h-3.5 w-3.5" />
+            <div className="rounded-xl border theme-border theme-surface p-2.5 text-right shadow-sm">
+              <span className="text-[10px] font-medium theme-text-muted">Branch:</span>
+              <div className="flex items-center gap-1.5 text-xs font-bold theme-text-main">
+                <GitBranch className="h-3.5 w-3.5 opacity-80" />
                 <span>{currentBranch}</span>
               </div>
             </div>
 
             {latestCommit && (
-              <div className="rounded-xl border border-amber-300/80 bg-white p-2.5 text-right shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <span className="text-[10px] font-medium text-slate-400">Commit:</span>
-                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-amber-600 dark:text-amber-400">
-                  <GitCommit className="h-3.5 w-3.5" />
+              <div className="rounded-xl border theme-border theme-surface p-2.5 text-right shadow-sm">
+                <span className="text-[10px] font-medium theme-text-muted">Commit:</span>
+                <div className="flex items-center gap-1.5 text-xs font-mono font-bold theme-text-main">
+                  <GitCommit className="h-3.5 w-3.5 opacity-80" />
                   <span>{latestCommit.shortSha}</span>
                 </div>
               </div>
@@ -122,55 +122,55 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
       {/* Top 4 KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Files */}
-        <div className="rounded-2xl border-2 border-amber-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center justify-between text-amber-500">
-            <FileCode className="h-5 w-5" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Files</span>
+        <div className="rounded-2xl border-2 theme-border theme-surface p-5 shadow-sm">
+          <div className="flex items-center justify-between opacity-80">
+            <FileCode className="h-5 w-5 theme-text-main" />
+            <span className="text-[10px] font-bold uppercase tracking-wider theme-text-muted">Files</span>
           </div>
-          <p className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{stats.totalFiles}</p>
-          <span className="text-xs text-slate-500">Tracked source files</span>
+          <p className="mt-3 text-3xl font-black theme-text-main">{stats.totalFiles}</p>
+          <span className="text-xs theme-text-muted">Tracked source files</span>
         </div>
 
         {/* Total Folders */}
-        <div className="rounded-2xl border-2 border-amber-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center justify-between text-yellow-500">
-            <FolderTree className="h-5 w-5" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Folders</span>
+        <div className="rounded-2xl border-2 theme-border theme-surface p-5 shadow-sm">
+          <div className="flex items-center justify-between opacity-80">
+            <FolderTree className="h-5 w-5 theme-text-main" />
+            <span className="text-[10px] font-bold uppercase tracking-wider theme-text-muted">Folders</span>
           </div>
-          <p className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{stats.totalFolders}</p>
-          <span className="text-xs text-slate-500">Directories & subtrees</span>
+          <p className="mt-3 text-3xl font-black theme-text-main">{stats.totalFolders}</p>
+          <span className="text-xs theme-text-muted">Directories & subtrees</span>
         </div>
 
         {/* Total Code Volume */}
-        <div className="rounded-2xl border-2 border-amber-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center justify-between text-amber-600">
-            <HardDrive className="h-5 w-5" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Volume</span>
+        <div className="rounded-2xl border-2 theme-border theme-surface p-5 shadow-sm">
+          <div className="flex items-center justify-between opacity-80">
+            <HardDrive className="h-5 w-5 theme-text-main" />
+            <span className="text-[10px] font-bold uppercase tracking-wider theme-text-muted">Volume</span>
           </div>
-          <p className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{formatFileSize(stats.totalBytes)}</p>
-          <span className="text-xs text-slate-500">Total repository payload</span>
+          <p className="mt-3 text-3xl font-black theme-text-main">{formatFileSize(stats.totalBytes)}</p>
+          <span className="text-xs theme-text-muted">Total repository payload</span>
         </div>
 
         {/* Stargazers */}
-        <div className="rounded-2xl border-2 border-amber-200/80 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <div className="flex items-center justify-between text-yellow-500">
-            <Crown className="h-5 w-5" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Stars</span>
+        <div className="rounded-2xl border-2 theme-border theme-surface p-5 shadow-sm">
+          <div className="flex items-center justify-between opacity-80">
+            <Crown className="h-5 w-5 theme-text-main" />
+            <span className="text-[10px] font-bold uppercase tracking-wider theme-text-muted">Stars</span>
           </div>
-          <p className="mt-3 text-3xl font-black text-slate-900 dark:text-white">{repo?.stars ?? 0}</p>
-          <span className="text-xs text-slate-500">GitHub community stars</span>
+          <p className="mt-3 text-3xl font-black theme-text-main">{repo?.stars ?? 0}</p>
+          <span className="text-xs theme-text-muted">GitHub community stars</span>
         </div>
       </div>
 
       {/* Two Column Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Language & File Type Distribution */}
-        <div className="rounded-2xl border-2 border-amber-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-5">
+        <div className="rounded-2xl border-2 theme-border theme-surface p-6 shadow-sm space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="text-base font-bold theme-text-main">
               File Extension Distribution
             </h3>
-            <span className="text-xs text-amber-600 dark:text-amber-400 font-semibold">
+            <span className="text-xs theme-text-main font-semibold">
               {stats.sortedExtensions.length} types
             </span>
           </div>
@@ -179,16 +179,16 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
             {stats.sortedExtensions.map((item) => (
               <div key={item.ext} className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
+                  <span className="font-mono font-bold theme-text-main">
                     .{item.ext.toLowerCase()}
                   </span>
-                  <span className="text-slate-500">
+                  <span className="theme-text-muted">
                     {item.count} files ({item.percentage}%) • {formatFileSize(item.bytes)}
                   </span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                <div className="h-2 w-full overflow-hidden rounded-full theme-surface-subtle">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-500"
+                    className="h-full rounded-full gold-button"
                     style={{ width: `${item.percentage}%` }}
                   />
                 </div>
@@ -198,33 +198,33 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({
         </div>
 
         {/* Right: Top Largest Files */}
-        <div className="rounded-2xl border-2 border-amber-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 space-y-5">
+        <div className="rounded-2xl border-2 theme-border theme-surface p-6 shadow-sm space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+            <h3 className="text-base font-bold theme-text-main">
               Largest Files by Size
             </h3>
-            <span className="text-xs text-slate-400">Byte breakdown</span>
+            <span className="text-xs theme-text-muted">Byte breakdown</span>
           </div>
 
           <div className="space-y-2">
             {stats.topLargestFiles.map((file, i) => (
               <div
                 key={file.path}
-                className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/50 p-2.5 text-xs dark:border-slate-800 dark:bg-slate-800/40"
+                className="flex items-center justify-between rounded-xl border theme-border theme-surface-subtle p-2.5 text-xs"
               >
                 <div className="flex items-center gap-2 overflow-hidden pr-2">
-                  <span className="font-bold text-amber-500">#{i + 1}</span>
-                  <span className="truncate font-mono text-slate-700 dark:text-slate-300" title={file.path}>
+                  <span className="font-bold opacity-80">#{i + 1}</span>
+                  <span className="truncate font-mono theme-text-main" title={file.path}>
                     {file.path}
                   </span>
                 </div>
-                <span className="shrink-0 font-mono font-semibold text-amber-600 dark:text-amber-400">
+                <span className="shrink-0 font-mono font-semibold theme-text-main">
                   {formatFileSize(file.size)}
                 </span>
               </div>
             ))}
             {stats.topLargestFiles.length === 0 && (
-              <p className="text-xs text-slate-400 italic">No files available to calculate size metrics.</p>
+              <p className="text-xs theme-text-muted italic">No files available to calculate size metrics.</p>
             )}
           </div>
         </div>

@@ -35,7 +35,17 @@ const DEFAULT_REPO_URL = 'https://github.com/amritanshguptadev/javascript-lab'
 
 export default function App() {
   const [activePage, setActivePage] = useState<AppPage>('home')
-  const [theme, setTheme] = useState<AppTheme>('ivory-gold') // Default: Ivory & Gold
+  const [theme, setTheme] = useState<AppTheme>(() => {
+    try {
+      const saved = localStorage.getItem('javaland_theme') as AppTheme
+      if (saved && ['ivory-gold', 'obsidian-gold', 'emerald-gold', 'sapphire-abyss', 'ruby-gold', 'cosmic-amethyst'].includes(saved)) {
+        return saved
+      }
+    } catch {
+      // ignore
+    }
+    return 'ivory-gold' // Default: Ivory & Gold
+  })
 
   const [repoUrl, setRepoUrl] = useState(DEFAULT_REPO_URL)
   const [repoInfo, setRepoInfo] = useState<RepoInfo | null>(null)
@@ -76,13 +86,26 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
 
-  // Apply theme class to document element (supports all 4 themes)
+  // Apply theme class to document element (supports all 6 rich themes)
   useEffect(() => {
     const root = document.documentElement
-    root.classList.remove('theme-ivory-gold', 'theme-obsidian-gold', 'theme-emerald-gold', 'theme-ruby-gold', 'dark')
+    root.classList.remove(
+      'theme-ivory-gold',
+      'theme-obsidian-gold',
+      'theme-emerald-gold',
+      'theme-sapphire-abyss',
+      'theme-ruby-gold',
+      'theme-cosmic-amethyst',
+      'dark'
+    )
     root.classList.add(`theme-${theme}`)
     if (theme !== 'ivory-gold') {
       root.classList.add('dark')
+    }
+    try {
+      localStorage.setItem('javaland_theme', theme)
+    } catch {
+      // ignore
     }
   }, [theme])
 
@@ -290,9 +313,9 @@ export default function App() {
     countLeaves(node)
     return acc + count
   }, 0)
-
   return (
-    <div className="flex min-h-screen flex-col bg-white text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 selection:bg-amber-500/30 selection:text-amber-800 dark:selection:text-amber-200">
+    <div className="theme-page min-h-screen flex flex-col relative transition-colors duration-300">
+      <div className="theme-ambient-mesh" />
       {/* Top Navbar */}
       <Navbar
         activePage={activePage}

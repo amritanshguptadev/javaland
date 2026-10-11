@@ -71,4 +71,10 @@ export type SyncState = 'synced' | 'checking' | 'error' | 'paused'
 
 export type AppPage = 'home' | 'explorer' | 'playground' | 'analytics'
 
-export type AppTheme = 'ivory-gold' | 'obsidian-gold' | 'emerald-gold' | 'ruby-gold'
+export type AppTheme =
+  | 'ivory-gold'
+  | 'obsidian-gold'
+  | 'emerald-gold'
+  | 'sapphire-abyss'
+  | 'ruby-gold'
+  | 'cosmic-amethyst'

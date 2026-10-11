@@ -149,20 +149,20 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
   const pathParts = fileData.path.split('/')
 
   return (
-    <div className="flex h-full flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden">
+    <div className="flex h-full flex-col theme-surface theme-text-main overflow-hidden">
       {/* File Top Bar: Breadcrumbs & Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/60 bg-amber-50/40 px-4 py-2.5 dark:border-slate-800 dark:bg-slate-900/60">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b theme-border theme-surface-subtle px-4 py-2.5">
         {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs text-slate-600 dark:text-slate-400">
-          <FileCode className="h-4 w-4 text-amber-500 shrink-0" />
+        <div className="flex items-center gap-1.5 overflow-x-auto text-xs theme-text-muted">
+          <FileCode className="h-4 w-4 theme-text-main shrink-0" />
           {pathParts.map((part, index) => (
             <React.Fragment key={index}>
-              {index > 0 && <span className="text-amber-400">/</span>}
+              {index > 0 && <span className="opacity-50">/</span>}
               <span
                 className={`${
                   index === pathParts.length - 1
-                    ? 'font-bold text-amber-900 dark:text-amber-300 font-mono'
-                    : 'text-slate-600 dark:text-slate-400'
+                    ? 'font-bold theme-text-main font-mono'
+                    : 'theme-text-muted'
                 }`}
               >
                 {part}
@@ -171,14 +171,14 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
           ))}
 
           {/* Size and language badge */}
-          <span className="ml-2 rounded-md border border-amber-300/80 bg-white px-2 py-0.5 text-[10px] font-mono font-bold text-amber-800 dark:border-amber-500/30 dark:bg-slate-800 dark:text-amber-300">
+          <span className="ml-2 rounded-md border theme-border theme-surface px-2 py-0.5 text-[10px] font-mono font-bold theme-text-main">
             {formatFileSize(fileData.size)}
           </span>
-          <span className="rounded-md bg-amber-500/15 border border-amber-400/40 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
+          <span className="rounded-md border theme-border theme-surface-elevated px-2 py-0.5 text-[10px] font-bold theme-text-main">
             {language}
           </span>
           {!isImage && !fileData.isBinary && (
-            <span className="text-[11px] text-slate-500 font-medium">
+            <span className="text-[11px] theme-text-muted font-medium">
               {lineCount} {lineCount === 1 ? 'line' : 'lines'}
             </span>
           )}
@@ -191,10 +191,10 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
               type="button"
               onClick={() => setWrapLines(!wrapLines)}
               title={wrapLines ? 'Disable line wrap' : 'Enable line wrap'}
-              className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition ${
+              className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition cursor-pointer ${
                 wrapLines
-                  ? 'bg-amber-500 text-slate-950 font-bold'
-                  : 'text-slate-600 hover:bg-amber-100 dark:text-slate-400 dark:hover:bg-slate-800'
+                  ? 'theme-pill-active'
+                  : 'theme-surface border theme-border theme-text-main hover:opacity-80'
               }`}
             >
               <WrapText className="h-3.5 w-3.5" />
@@ -206,17 +206,17 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
             <button
               type="button"
               onClick={handleCopy}
-              className="flex items-center gap-1 rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold text-amber-900 transition hover:bg-amber-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+              className="flex items-center gap-1 rounded-lg border theme-border theme-surface px-2.5 py-1 text-xs font-semibold theme-text-main transition hover:opacity-85 cursor-pointer"
               title="Copy code"
             >
               {copied ? (
                 <>
                   <Check className="h-3.5 w-3.5 text-emerald-500" />
-                  <span className="text-emerald-600 font-bold">Copied!</span>
+                  <span className="text-emerald-500 font-bold">Copied!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="h-3.5 w-3.5 text-amber-600" />
+                  <Copy className="h-3.5 w-3.5 opacity-80" />
                   <span className="hidden sm:inline">Copy</span>
                 </>
               )}
@@ -226,10 +226,10 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
           <button
             type="button"
             onClick={handleDownload}
-            className="flex items-center gap-1 rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold text-amber-900 transition hover:bg-amber-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+            className="flex items-center gap-1 rounded-lg border theme-border theme-surface px-2.5 py-1 text-xs font-semibold theme-text-main transition hover:opacity-85 cursor-pointer"
             title="Download file"
           >
-            <Download className="h-3.5 w-3.5 text-amber-600" />
+            <Download className="h-3.5 w-3.5 opacity-80" />
             <span className="hidden sm:inline">Download</span>
           </button>
 
@@ -237,36 +237,36 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
             href={fileData.htmlUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold text-amber-900 transition hover:bg-amber-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+            className="flex items-center gap-1 rounded-lg border theme-border theme-surface px-2.5 py-1 text-xs font-semibold theme-text-main transition hover:opacity-85 cursor-pointer"
             title="Open on GitHub"
           >
-            <ExternalLink className="h-3.5 w-3.5 text-amber-600" />
+            <ExternalLink className="h-3.5 w-3.5 opacity-80" />
             <span className="hidden sm:inline">GitHub</span>
           </a>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-auto bg-slate-950 font-mono text-xs">
+      <div className="flex-1 overflow-auto theme-code-bg font-mono text-xs">
         {isImage ? (
           <div className="flex h-full min-h-[300px] flex-col items-center justify-center p-8 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px]">
-            <div className="max-w-full rounded-2xl border-2 border-amber-400/50 bg-slate-900 p-4 shadow-2xl">
+            <div className="max-w-full rounded-2xl border-2 theme-border theme-surface p-4 shadow-2xl">
               <img
                 src={fileData.content}
                 alt={fileData.name}
                 className="max-h-[60vh] max-w-full rounded object-contain"
               />
-              <div className="mt-3 flex items-center justify-between text-xs text-amber-300 font-sans">
+              <div className="mt-3 flex items-center justify-between text-xs theme-text-main font-sans">
                 <span className="font-bold">{fileData.name}</span>
                 <span>{formatFileSize(fileData.size)}</span>
               </div>
             </div>
           </div>
         ) : fileData.isBinary ? (
-          <div className="flex h-full flex-col items-center justify-center p-8 text-center text-slate-400">
-            <FileImage className="h-12 w-12 text-amber-500" />
-            <h4 className="mt-3 text-sm font-bold text-white">Binary Resource</h4>
-            <p className="mt-1 max-w-sm text-xs text-slate-500">
+          <div className="flex h-full flex-col items-center justify-center p-8 text-center theme-text-muted">
+            <FileImage className="h-12 w-12 opacity-80" />
+            <h4 className="mt-3 text-sm font-bold theme-text-main">Binary Resource</h4>
+            <p className="mt-1 max-w-sm text-xs theme-text-muted">
               Binary format cannot be displayed as plain code. You can download it directly.
             </p>
             <button
@@ -279,15 +279,15 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
             </button>
           </div>
         ) : fileData.content === '' ? (
-          <div className="flex h-full flex-col items-center justify-center p-8 text-center text-slate-500">
-            <FileCode className="h-10 w-10 text-amber-500/40" />
-            <p className="mt-2 text-xs font-bold text-amber-400/80">Empty file (0 bytes)</p>
+          <div className="flex h-full flex-col items-center justify-center p-8 text-center theme-text-muted">
+            <FileCode className="h-10 w-10 opacity-60" />
+            <p className="mt-2 text-xs font-bold theme-text-main">Empty file (0 bytes)</p>
           </div>
         ) : (
           /* Highlighting with Line numbers */
           <div className="relative flex min-h-full">
             <div
-              className="sticky left-0 z-10 select-none border-r border-slate-800 bg-slate-950/95 px-3 py-3 text-right font-mono text-[11px] text-amber-600/70 dark:text-amber-400/60"
+              className="sticky left-0 z-10 select-none border-r theme-border theme-code-bg px-3 py-3 text-right font-mono text-[11px] text-amber-500/70"
               aria-hidden="true"
             >
               {Array.from({ length: lineCount }).map((_, i) => (
@@ -299,7 +299,7 @@ export const CodeViewer: React.FC<CodeViewerProps> = ({
 
             <div className="flex-1 py-3 px-4 overflow-x-auto">
               <pre
-                className={`code-studio-container m-0 p-0 text-[12px] leading-[1.6rem] text-slate-200 ${
+                className={`code-studio-container m-0 p-0 text-[12px] leading-[1.6rem] text-slate-100 ${
                   wrapLines ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'
                 }`}
               >

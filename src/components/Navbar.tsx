@@ -27,11 +27,13 @@ interface NavbarProps {
   onOpenConnectModal: () => void
 }
 
-const THEME_OPTIONS: { id: AppTheme; label: string; bg: string; dot: string }[] = [
-  { id: 'ivory-gold', label: 'Ivory & Gold', bg: 'bg-[#fcfbf9]', dot: 'bg-amber-400 border-amber-600' },
-  { id: 'obsidian-gold', label: 'Midnight Obsidian', bg: 'bg-[#080a0f]', dot: 'bg-yellow-400 border-yellow-200' },
-  { id: 'emerald-gold', label: 'Royal Emerald', bg: 'bg-[#04120d]', dot: 'bg-emerald-400 border-emerald-200' },
-  { id: 'ruby-gold', label: 'Imperial Ruby', bg: 'bg-[#10060b]', dot: 'bg-rose-400 border-rose-200' },
+const THEME_OPTIONS: { id: AppTheme; label: string; desc: string; dot: string }[] = [
+  { id: 'ivory-gold', label: 'Ivory Imperial', desc: 'Pearl Alabaster & Warm Gold', dot: 'bg-amber-400 border-amber-600' },
+  { id: 'obsidian-gold', label: 'Midnight Obsidian', desc: 'Deep Onyx & 24K Gold', dot: 'bg-yellow-400 border-yellow-200' },
+  { id: 'emerald-gold', label: 'Emerald Sanctuary', desc: 'Ancient Pine & Radiant Jade', dot: 'bg-emerald-400 border-emerald-200' },
+  { id: 'sapphire-abyss', label: 'Sapphire Abyss', desc: 'Oceanic Trench & Cyan Wave', dot: 'bg-cyan-400 border-cyan-200' },
+  { id: 'ruby-gold', label: 'Crimson Velvet', desc: 'Imperial Ruby & Rose Gold', dot: 'bg-rose-400 border-rose-200' },
+  { id: 'cosmic-amethyst', label: 'Cosmic Amethyst', desc: 'Starlight Nebula & Violet Aurora', dot: 'bg-purple-400 border-purple-200' },
 ]
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -63,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   ]
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-amber-200/50 bg-white/95 backdrop-blur-md px-3 sm:px-6 py-2.5 sm:py-3 transition-colors dark:border-amber-500/20 dark:bg-slate-950/95 shadow-xs">
+    <header className="sticky top-0 z-40 w-full theme-nav border-b theme-border px-3 sm:px-6 py-2.5 sm:py-3 transition-colors shadow-xs">
       <div className="flex items-center justify-between gap-2 sm:gap-4 max-w-7xl mx-auto">
         {/* Left: Brand Identity & Active Repository */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -73,22 +75,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-baseline gap-1 text-left group transition cursor-pointer"
             title="Go to JavaLand Sanctuary Home"
           >
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+            <span className="text-xl sm:text-2xl font-black tracking-tight theme-text-main">
               Java<span className="gold-gradient-text font-serif italic text-xl sm:text-2xl font-normal">Land</span>
             </span>
           </button>
 
           {/* Active Repo Capsule with Switch Button */}
           {repo && (
-            <div className="hidden md:flex items-center gap-2 rounded-full border border-amber-300/80 bg-amber-50/70 pl-2.5 pr-1.5 py-1 text-xs dark:border-amber-500/30 dark:bg-slate-900">
-              <GithubIcon className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-              <span className="font-semibold text-slate-700 dark:text-slate-300 max-w-[120px] truncate" title={repo.fullName}>
+            <div className="hidden md:flex items-center gap-2 rounded-full border theme-border theme-surface-subtle pl-2.5 pr-1.5 py-1 text-xs">
+              <GithubIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
+              <span className="font-semibold theme-text-main max-w-[120px] truncate" title={repo.fullName}>
                 {repo.name}
               </span>
               <button
                 type="button"
                 onClick={onOpenConnectModal}
-                className="rounded-full bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-slate-950 hover:bg-amber-400 transition cursor-pointer"
+                className="gold-button rounded-full px-2 py-0.5 text-[10px] font-bold cursor-pointer"
                 title="Switch repository or reload default javascript-lab"
               >
                 Switch
@@ -108,8 +110,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onClick={() => onNavigate(item.page)}
                 className={`flex items-center gap-1 sm:gap-1.5 rounded-full px-2.5 sm:px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer shrink-0 ${
                   isActive
-                    ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 text-slate-950 shadow-md shadow-amber-500/20'
-                    : 'text-slate-600 hover:bg-amber-50 hover:text-amber-700 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-amber-400'
+                    ? 'theme-pill-active'
+                    : 'theme-text-muted hover:theme-text-main hover:opacity-100'
                 }`}
               >
                 {item.icon}
@@ -130,10 +132,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setBranchDropdownOpen(!branchDropdownOpen)
                   setThemeDropdownOpen(false)
                 }}
-                className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-amber-300/80 bg-white px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-amber-400 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 cursor-pointer"
+                className="flex items-center gap-1 sm:gap-1.5 rounded-full border theme-border theme-surface px-2.5 sm:px-3 py-1.5 text-xs font-semibold theme-text-main transition hover:opacity-90 cursor-pointer"
                 title="Switch branch"
               >
-                <GitBranch className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                <GitBranch className="h-3.5 w-3.5 shrink-0 opacity-80" />
                 <span className="max-w-[70px] sm:max-w-[90px] truncate">{currentBranch || repo.defaultBranch}</span>
               </button>
 
@@ -143,14 +145,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="fixed inset-0 z-10"
                     onClick={() => setBranchDropdownOpen(false)}
                   />
-                  <div className="absolute right-0 mt-2 z-20 w-56 rounded-2xl border border-amber-200 bg-white p-2 shadow-2xl backdrop-blur-xl dark:border-amber-500/30 dark:bg-slate-900">
+                  <div className="absolute right-0 mt-2 z-20 w-56 rounded-2xl border theme-border theme-surface p-2 shadow-2xl backdrop-blur-xl">
                     <div className="mb-2 px-1">
                       <input
                         type="text"
                         placeholder="Filter branches..."
                         value={branchSearch}
                         onChange={(e) => setBranchSearch(e.target.value)}
-                        className="w-full rounded-lg border border-amber-200 bg-amber-50/50 px-2.5 py-1 text-xs text-slate-800 placeholder-slate-400 focus:border-amber-500 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+                        className="w-full rounded-lg border theme-border theme-surface-subtle px-2.5 py-1 text-xs theme-text-main placeholder-slate-400 focus:outline-none"
                         autoFocus
                       />
                     </div>
@@ -165,12 +167,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                           }}
                           className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-xs transition cursor-pointer ${
                             b.name === currentBranch
-                              ? 'bg-amber-100 font-bold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300'
-                              : 'text-slate-700 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white'
+                              ? 'theme-surface-elevated font-bold theme-text-main'
+                              : 'theme-text-muted hover:theme-surface-subtle hover:theme-text-main'
                           }`}
                         >
                           <span className="truncate">{b.name}</span>
-                          {b.name === currentBranch && <Check className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />}
+                          {b.name === currentBranch && <Check className="h-3.5 w-3.5 text-emerald-500" />}
                         </button>
                       ))}
                     </div>
@@ -186,12 +188,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onManualRefresh}
             disabled={syncState === 'checking'}
             title="Check for updates on GitHub"
-            className="flex items-center justify-center rounded-full border border-amber-300/80 bg-white p-1.5 sm:p-2 text-slate-700 transition hover:border-amber-400 hover:text-amber-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:text-white disabled:opacity-50 cursor-pointer"
+            className="flex items-center justify-center rounded-full border theme-border theme-surface p-1.5 sm:p-2 theme-text-main transition hover:opacity-80 disabled:opacity-50 cursor-pointer"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${syncState === 'checking' ? 'animate-spin text-amber-500' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${syncState === 'checking' ? 'animate-spin' : ''}`} />
           </button>
 
-          {/* 4-Theme Switcher Dropdown */}
+          {/* 6-Theme Atmospheric Switcher Dropdown */}
           <div className="relative">
             <button
               type="button"
@@ -199,8 +201,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setThemeDropdownOpen(!themeDropdownOpen)
                 setBranchDropdownOpen(false)
               }}
-              title="Select luxury aesthetic theme"
-              className="flex items-center justify-center rounded-full border border-amber-300/80 bg-amber-50 p-1.5 sm:p-2 text-amber-700 transition hover:bg-amber-100 dark:border-amber-500/30 dark:bg-slate-900 dark:text-amber-400 dark:hover:bg-slate-800 cursor-pointer"
+              title="Select luxury atmospheric theme"
+              className="flex items-center justify-center rounded-full border theme-border theme-surface-subtle p-1.5 sm:p-2 theme-text-main transition hover:opacity-80 cursor-pointer"
             >
               <Palette className="h-3.5 w-3.5" />
             </button>
@@ -211,9 +213,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="fixed inset-0 z-10"
                   onClick={() => setThemeDropdownOpen(false)}
                 />
-                <div className="absolute right-0 mt-2 z-20 w-48 rounded-2xl border border-amber-200 bg-white p-2 shadow-2xl backdrop-blur-xl dark:border-amber-500/30 dark:bg-slate-900 space-y-1">
-                  <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Aesthetic Themes
+                <div className="absolute right-0 mt-2 z-20 w-60 rounded-2xl border theme-border theme-surface p-2 shadow-2xl backdrop-blur-xl space-y-1">
+                  <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider theme-text-muted">
+                    Atmospheric Themes (6)
                   </div>
                   {THEME_OPTIONS.map((opt) => (
                     <button
@@ -225,15 +227,18 @@ export const Navbar: React.FC<NavbarProps> = ({
                       }}
                       className={`flex w-full items-center justify-between rounded-xl px-2.5 py-2 text-left text-xs transition cursor-pointer ${
                         theme === opt.id
-                          ? 'bg-amber-100 font-bold text-amber-900 dark:bg-amber-950/60 dark:text-amber-300'
-                          : 'text-slate-700 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800'
+                          ? 'theme-surface-elevated font-bold theme-text-main border theme-border'
+                          : 'theme-text-muted hover:theme-surface-subtle hover:theme-text-main'
                       }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <span className={`h-3.5 w-3.5 rounded-full border ${opt.dot} shadow-xs shrink-0`} />
-                        <span>{opt.label}</span>
+                      <div className="flex items-center gap-2.5">
+                        <span className={`h-4 w-4 rounded-full border ${opt.dot} shadow-xs shrink-0`} />
+                        <div>
+                          <div className="font-semibold text-xs leading-none">{opt.label}</div>
+                          <div className="text-[10px] opacity-70 mt-0.5 leading-none">{opt.desc}</div>
+                        </div>
                       </div>
-                      {theme === opt.id && <Check className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />}
+                      {theme === opt.id && <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
                     </button>
                   ))}
                 </div>
@@ -245,10 +250,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             type="button"
             onClick={onOpenConnectModal}
-            className="md:hidden flex items-center justify-center rounded-full border border-amber-300/80 bg-white p-1.5 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 cursor-pointer"
+            className="md:hidden flex items-center justify-center rounded-full border theme-border theme-surface p-1.5 theme-text-main cursor-pointer"
             title="Switch repository"
           >
-            <Globe className="h-3.5 w-3.5 text-amber-500" />
+            <Globe className="h-3.5 w-3.5" />
           </button>
 
           {/* GitHub link */}
@@ -257,7 +262,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               href={repo.htmlUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:flex items-center justify-center rounded-full border border-amber-300/80 bg-amber-50/60 p-2 text-amber-900 transition hover:bg-amber-100 dark:border-amber-500/30 dark:bg-slate-900 dark:text-amber-300 cursor-pointer"
+              className="hidden lg:flex items-center justify-center rounded-full border theme-border theme-surface-subtle p-2 theme-text-main transition hover:opacity-80 cursor-pointer"
               title="Open repository on GitHub"
             >
               <GithubIcon className="h-3.5 w-3.5" />

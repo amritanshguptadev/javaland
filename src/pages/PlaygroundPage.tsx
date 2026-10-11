@@ -205,19 +205,19 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
   }
 
   return (
-    <div className="flex h-full flex-col bg-slate-50 dark:bg-slate-950">
+    <div className="flex h-full flex-col theme-page">
       {/* Top Controls Bar */}
-      <div className="border-b border-amber-200/60 bg-white px-4 py-3 shadow-xs dark:border-amber-500/20 dark:bg-slate-900">
+      <div className="border-b theme-border theme-surface px-4 py-3 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-3 max-w-7xl mx-auto">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg theme-surface-subtle border theme-border theme-text-main">
               <FlaskConical className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+              <h2 className="text-sm font-bold theme-text-main">
                 Live Interactive Lab Runner
               </h2>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] theme-text-muted">
                 Execute algorithms and DOM scripts directly in an isolated sandbox.
               </p>
             </div>
@@ -238,7 +238,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
 
         {/* Labs Pills */}
         <div className="mt-3 flex items-center gap-1.5 overflow-x-auto pb-1 max-w-7xl mx-auto">
-          <span className="text-xs font-semibold text-slate-500 shrink-0">Available Labs:</span>
+          <span className="text-xs font-semibold theme-text-muted shrink-0">Available Labs:</span>
           {availableLabs.map((lab) => {
             const isSelected = lab.id === selectedLabId
             return (
@@ -248,8 +248,8 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
                 onClick={() => setSelectedLabId(lab.id)}
                 className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition shrink-0 cursor-pointer ${
                   isSelected
-                    ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
-                    : 'border border-amber-200 bg-amber-50/50 text-slate-700 hover:bg-amber-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
+                    ? 'theme-pill-active'
+                    : 'theme-pill-inactive'
                 }`}
               >
                 <span>{lab.name}</span>
@@ -258,7 +258,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             )
           })}
           {availableLabs.length === 0 && (
-            <span className="text-xs text-slate-400 italic">No web labs found in this repository.</span>
+            <span className="text-xs theme-text-muted italic">No web labs found in this repository.</span>
           )}
         </div>
       </div>
@@ -266,15 +266,15 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
       {/* Main Workspace */}
       <div className="flex flex-1 flex-col overflow-hidden max-w-7xl mx-auto w-full p-4 gap-4 min-h-[600px]">
         {/* Tab selection */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/50 pb-2 dark:border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b theme-border pb-2">
           <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={() => setActiveTab('preview')}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'preview'
-                  ? 'bg-amber-500 text-slate-950 shadow'
-                  : 'text-slate-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800'
+                  ? 'theme-pill-active'
+                  : 'theme-text-muted hover:theme-text-main hover:opacity-100'
               }`}
             >
               <Play className="h-3.5 w-3.5" />
@@ -286,8 +286,8 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
               onClick={() => setActiveTab('html')}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'html'
-                  ? 'bg-amber-500 text-slate-950 shadow'
-                  : 'text-slate-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800'
+                  ? 'theme-pill-active'
+                  : 'theme-text-muted hover:theme-text-main hover:opacity-100'
               }`}
             >
               <Code2 className="h-3.5 w-3.5" />
@@ -299,8 +299,8 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
               onClick={() => setActiveTab('js')}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'js'
-                  ? 'bg-amber-500 text-slate-950 shadow'
-                  : 'text-slate-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800'
+                  ? 'theme-pill-active'
+                  : 'theme-text-muted hover:theme-text-main hover:opacity-100'
               }`}
             >
               <FileCode className="h-3.5 w-3.5" />
@@ -312,8 +312,8 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
               onClick={() => setActiveTab('console')}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'console'
-                  ? 'bg-amber-500 text-slate-950 shadow'
-                  : 'text-slate-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800'
+                  ? 'theme-pill-active'
+                  : 'theme-text-muted hover:theme-text-main hover:opacity-100'
               }`}
             >
               <Terminal className="h-3.5 w-3.5" />
@@ -321,17 +321,17 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             </button>
           </div>
 
-          <span className="text-[11px] font-mono text-slate-500">
-            Selected: <strong className="text-amber-600 dark:text-amber-400">{selectedLabId}</strong>
+          <span className="text-[11px] font-mono theme-text-muted">
+            Selected: <strong className="theme-text-main">{selectedLabId}</strong>
           </span>
         </div>
 
         {/* View container */}
-        <div className="flex-1 overflow-hidden rounded-2xl border-2 border-amber-300/80 bg-white shadow-xl dark:border-amber-500/30 dark:bg-slate-900 min-h-[480px] flex flex-col">
+        <div className="flex-1 overflow-hidden rounded-2xl border-2 theme-border theme-surface shadow-xl min-h-[480px] flex flex-col">
           {isLoadingLab ? (
-            <div className="flex h-full flex-col items-center justify-center p-8 text-center text-slate-500">
+            <div className="flex h-full flex-col items-center justify-center p-8 text-center theme-text-muted">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
-              <p className="mt-2 text-xs font-semibold text-slate-600 dark:text-slate-400">Loading lab files...</p>
+              <p className="mt-2 text-xs font-semibold theme-text-main">Loading lab files...</p>
             </div>
           ) : activeTab === 'preview' ? (
             /* Live Iframe Sandbox */
@@ -346,17 +346,17 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             </div>
           ) : activeTab === 'html' ? (
             /* HTML Source View — High Contrast & Syntax Highlighted */
-            <div className="flex-1 flex flex-col bg-[#0b0e14] text-slate-100 overflow-hidden font-mono text-xs">
-              <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-4 py-2">
-                <span className="text-[11px] font-bold text-amber-400 font-sans">
+            <div className="flex-1 flex flex-col theme-code-bg text-slate-100 overflow-hidden font-mono text-xs">
+              <div className="flex items-center justify-between border-b theme-border theme-surface-subtle px-4 py-2">
+                <span className="text-[11px] font-bold theme-text-main font-sans">
                   HTML Source (index.html)
                 </span>
                 <div className="flex items-center gap-3 font-sans">
-                  <span className="text-[10px] text-slate-400 font-mono">{htmlLineCount} lines</span>
+                  <span className="text-[10px] theme-text-muted font-mono">{htmlLineCount} lines</span>
                   <button
                     type="button"
                     onClick={() => handleCopyCode(htmlContent)}
-                    className="flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-[11px] font-bold text-amber-300 hover:bg-slate-700 transition cursor-pointer"
+                    className="flex items-center gap-1 rounded theme-surface-elevated border theme-border px-2 py-1 text-[11px] font-bold theme-text-main hover:opacity-90 transition cursor-pointer"
                   >
                     {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
                     <span>{copied ? 'Copied!' : 'Copy HTML'}</span>
@@ -364,7 +364,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
                 </div>
               </div>
               <div className="flex-1 overflow-auto flex">
-                <div className="select-none border-r border-slate-800 bg-[#07090e] px-3 py-3 text-right font-mono text-[11px] text-amber-500/60 shrink-0">
+                <div className="select-none border-r theme-border theme-code-bg px-3 py-3 text-right font-mono text-[11px] text-amber-500/70 shrink-0">
                   {Array.from({ length: htmlLineCount }).map((_, i) => (
                     <div key={i + 1} className="leading-[1.6rem] h-[1.6rem]">{i + 1}</div>
                   ))}
@@ -381,17 +381,17 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             </div>
           ) : activeTab === 'js' ? (
             /* JavaScript Source View — High Contrast & Syntax Highlighted */
-            <div className="flex-1 flex flex-col bg-[#0b0e14] text-slate-100 overflow-hidden font-mono text-xs">
-              <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-4 py-2">
-                <span className="text-[11px] font-bold text-amber-400 font-sans">
+            <div className="flex-1 flex flex-col theme-code-bg text-slate-100 overflow-hidden font-mono text-xs">
+              <div className="flex items-center justify-between border-b theme-border theme-surface-subtle px-4 py-2">
+                <span className="text-[11px] font-bold theme-text-main font-sans">
                   JavaScript Source (script.js)
                 </span>
                 <div className="flex items-center gap-3 font-sans">
-                  <span className="text-[10px] text-slate-400 font-mono">{jsLineCount} lines</span>
+                  <span className="text-[10px] theme-text-muted font-mono">{jsLineCount} lines</span>
                   <button
                     type="button"
                     onClick={() => handleCopyCode(jsContent)}
-                    className="flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-[11px] font-bold text-amber-300 hover:bg-slate-700 transition cursor-pointer"
+                    className="flex items-center gap-1 rounded theme-surface-elevated border theme-border px-2 py-1 text-[11px] font-bold theme-text-main hover:opacity-90 transition cursor-pointer"
                   >
                     {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
                     <span>{copied ? 'Copied!' : 'Copy JavaScript'}</span>
@@ -399,7 +399,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
                 </div>
               </div>
               <div className="flex-1 overflow-auto flex">
-                <div className="select-none border-r border-slate-800 bg-[#07090e] px-3 py-3 text-right font-mono text-[11px] text-amber-500/60 shrink-0">
+                <div className="select-none border-r theme-border theme-code-bg px-3 py-3 text-right font-mono text-[11px] text-amber-500/70 shrink-0">
                   {Array.from({ length: jsLineCount }).map((_, i) => (
                     <div key={i + 1} className="leading-[1.6rem] h-[1.6rem]">{i + 1}</div>
                   ))}
@@ -416,25 +416,25 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             </div>
           ) : (
             /* Console Output */
-            <div className="h-full overflow-auto bg-[#0b0e14] p-4 font-mono text-xs text-emerald-400 flex-1">
-              <div className="mb-2 border-b border-slate-800 pb-2 text-[11px] text-slate-400 font-sans flex items-center justify-between">
+            <div className="h-full overflow-auto theme-code-bg p-4 font-mono text-xs text-emerald-400 flex-1">
+              <div className="mb-2 border-b theme-border pb-2 text-[11px] theme-text-muted font-sans flex items-center justify-between">
                 <span>Sandbox Console Output — logs captured from execution:</span>
                 <button
                   type="button"
                   onClick={() => setConsoleLogs([])}
-                  className="text-amber-400 hover:underline text-[10px] cursor-pointer"
+                  className="theme-text-main hover:underline text-[10px] cursor-pointer"
                 >
                   Clear Console
                 </button>
               </div>
               {consoleLogs.length > 0 ? (
                 consoleLogs.map((log, index) => (
-                  <div key={index} className="py-1 border-b border-slate-900 font-mono text-[12px] leading-relaxed">
+                  <div key={index} className="py-1 border-b theme-border font-mono text-[12px] leading-relaxed">
                     {log}
                   </div>
                 ))
               ) : (
-                <p className="text-slate-500 italic py-4">No console logs output yet. Click "Rerun Lab" or interact with the preview.</p>
+                <p className="theme-text-muted italic py-4">No console logs output yet. Click "Rerun Lab" or interact with the preview.</p>
               )}
             </div>
           )}

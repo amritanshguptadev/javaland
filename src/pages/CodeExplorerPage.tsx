@@ -51,13 +51,13 @@ export const CodeExplorerPage: React.FC<CodeExplorerPageProps> = ({
   }
 
   return (
-    <div className="relative flex flex-1 overflow-hidden h-full">
+    <div className="relative flex flex-1 overflow-hidden h-full theme-page">
       {/* Mobile Sidebar Toggle Button */}
       <div className="md:hidden absolute top-2 left-2 z-20">
         <button
           type="button"
           onClick={() => setMobileDrawerOpen(!mobileDrawerOpen)}
-          className="flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-bold text-amber-900 shadow-md backdrop-blur dark:border-amber-500/40 dark:bg-slate-900 dark:text-amber-300"
+          className="flex items-center gap-1.5 rounded-xl border theme-border theme-surface px-3 py-1.5 text-xs font-bold theme-text-main shadow-md backdrop-blur"
         >
           {mobileDrawerOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           <span>Tree</span>
@@ -66,7 +66,7 @@ export const CodeExplorerPage: React.FC<CodeExplorerPageProps> = ({
 
       {/* Left Sidebar: File Tree */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-72 transform bg-white transition-transform duration-200 ease-in-out md:static md:translate-x-0 md:w-76 shrink-0 dark:bg-slate-950 ${
+        className={`fixed inset-y-0 left-0 z-30 w-72 transform theme-surface border-r theme-border transition-transform duration-200 ease-in-out md:static md:translate-x-0 md:w-76 shrink-0 ${
           mobileDrawerOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
         }`}
       >
@@ -93,7 +93,7 @@ export const CodeExplorerPage: React.FC<CodeExplorerPageProps> = ({
       )}
 
       {/* Center Main Panel: Code Studio */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden border-r border-amber-200/40 dark:border-slate-800">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden border-r theme-border">
         <CodeViewer
           fileData={fileContent}
           isLoading={isFileLoading}
@@ -105,19 +105,19 @@ export const CodeExplorerPage: React.FC<CodeExplorerPageProps> = ({
       {/* Right Column: File Inspector Compass */}
       {selectedNode && (
         <aside
-          className={`hidden xl:flex flex-col w-72 shrink-0 bg-amber-50/30 dark:bg-slate-950 p-4 border-l border-amber-200/50 dark:border-slate-800 text-xs space-y-4 overflow-y-auto ${
+          className={`hidden xl:flex flex-col w-72 shrink-0 theme-surface-subtle p-4 border-l theme-border text-xs space-y-4 overflow-y-auto ${
             inspectorOpen ? 'block' : 'hidden'
           }`}
         >
-          <div className="flex items-center justify-between border-b border-amber-200/60 pb-2 dark:border-slate-800">
-            <span className="font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 text-[11px] flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+          <div className="flex items-center justify-between border-b theme-border pb-2">
+            <span className="font-bold uppercase tracking-wider theme-text-main text-[11px] flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 opacity-80" />
               Studio Compass
             </span>
             <button
               type="button"
               onClick={() => setInspectorOpen(false)}
-              className="text-slate-400 hover:text-slate-600"
+              className="theme-text-muted hover:theme-text-main"
               title="Close inspector"
             >
               <X className="h-3.5 w-3.5" />
@@ -125,29 +125,29 @@ export const CodeExplorerPage: React.FC<CodeExplorerPageProps> = ({
           </div>
 
           {/* File Card */}
-          <div className="rounded-xl border border-amber-300/80 bg-white p-3.5 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-2.5">
+          <div className="rounded-xl border theme-border theme-surface p-3.5 shadow-xs space-y-2.5">
             <div className="flex items-center gap-2">
-              <FileCode className="h-5 w-5 text-amber-500 shrink-0" />
-              <span className="font-bold text-slate-900 dark:text-white truncate" title={selectedNode.name}>
+              <FileCode className="h-5 w-5 theme-text-main shrink-0" />
+              <span className="font-bold theme-text-main truncate" title={selectedNode.name}>
                 {selectedNode.name}
               </span>
             </div>
 
-            <div className="space-y-1.5 pt-1 text-[11px] text-slate-500 dark:text-slate-400">
+            <div className="space-y-1.5 pt-1 text-[11px] theme-text-muted">
               <div className="flex justify-between">
                 <span>Size:</span>
-                <span className="font-mono font-bold text-amber-700 dark:text-amber-300">
+                <span className="font-mono font-bold theme-text-main">
                   {formatFileSize(selectedNode.size)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Branch:</span>
-                <span className="font-semibold text-slate-700 dark:text-slate-300">{currentBranch}</span>
+                <span className="font-semibold theme-text-main">{currentBranch}</span>
               </div>
               {selectedNode.sha && (
                 <div className="flex justify-between">
                   <span>Blob SHA:</span>
-                  <span className="font-mono text-slate-500">{selectedNode.sha.substring(0, 7)}</span>
+                  <span className="font-mono theme-text-muted">{selectedNode.sha.substring(0, 7)}</span>
                 </div>
               )}
             </div>
@@ -155,7 +155,7 @@ export const CodeExplorerPage: React.FC<CodeExplorerPageProps> = ({
             <button
               type="button"
               onClick={handleCopyPath}
-              className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 py-1.5 text-xs font-semibold text-amber-800 hover:bg-amber-100 dark:border-slate-700 dark:bg-slate-800 dark:text-amber-300 transition"
+              className="w-full flex items-center justify-center gap-1.5 rounded-lg border theme-border theme-surface-elevated py-1.5 text-xs font-semibold theme-text-main hover:opacity-90 transition cursor-pointer"
             >
               {pathCopied ? (
                 <>
@@ -164,7 +164,7 @@ export const CodeExplorerPage: React.FC<CodeExplorerPageProps> = ({
                 </>
               ) : (
                 <>
-                  <Copy className="h-3.5 w-3.5 text-amber-600" />
+                  <Copy className="h-3.5 w-3.5 opacity-80" />
                   <span>Copy Full Path</span>
                 </>
               )}
@@ -173,10 +173,10 @@ export const CodeExplorerPage: React.FC<CodeExplorerPageProps> = ({
 
           {/* Repo Info Card */}
           {repo && (
-            <div className="rounded-xl border border-amber-200 bg-white p-3 shadow-xs dark:border-slate-800 dark:bg-slate-900 space-y-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Connected Sanctuary</span>
-              <p className="font-bold text-slate-800 dark:text-slate-200">{repo.fullName}</p>
-              <p className="text-[11px] text-slate-500 line-clamp-3">{repo.description || 'No description provided.'}</p>
+            <div className="rounded-xl border theme-border theme-surface p-3 shadow-xs space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider theme-text-muted">Connected Sanctuary</span>
+              <p className="font-bold theme-text-main">{repo.fullName}</p>
+              <p className="text-[11px] theme-text-muted line-clamp-3">{repo.description || 'No description provided.'}</p>
             </div>
           )}
         </aside>
