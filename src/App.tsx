@@ -17,20 +17,26 @@ import type {
   FileContentData,
   SyncState,
   RateLimitInfo,
+  AppPage,
+  AppTheme,
 } from './types'
 import { Navbar } from './components/Navbar'
-import { RepoBar } from './components/RepoBar'
-import { FileExplorer } from './components/FileExplorer'
-import { CodeViewer } from './components/CodeViewer'
+import { HomePage } from './pages/HomePage'
+import { CodeExplorerPage } from './pages/CodeExplorerPage'
+import { PlaygroundPage } from './pages/PlaygroundPage'
+import { AnalyticsPage } from './pages/AnalyticsPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { Toast } from './components/Toast'
 import type { ToastMessage } from './components/Toast'
-import { Menu, X, Terminal } from 'lucide-react'
+import { Crown } from 'lucide-react'
 
 const DEFAULT_REPO_URL = 'https://github.com/amritanshguptadev/javascript-lab'
-const AUTO_SYNC_INTERVAL_MS = 60000 // 60 seconds efficient polling
 
 export default function App() {
-  const [repoUrl, setRepoUrl] = useState(DEFAULT_REPO_URL)
+  const [activePage, setActivePage] = useState<AppPage>('home')
+  const [theme, setTheme] = useState<AppTheme>('light') // Golden & White by default
+
+  const [, setRepoUrl] = useState(DEFAULT_REPO_URL)
   const [repoInfo, setRepoInfo] = useState<RepoInfo | null>(null)
   const [branches, setBranches] = useState<BranchInfo[]>([])
   const [currentBranch, setCurrentBranch] = useState<string>('')
@@ -52,12 +58,10 @@ export default function App() {
   const [syncState, setSyncState] = useState<SyncState>('synced')
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true)
+  const [syncIntervalMs, setSyncIntervalMs] = useState(60000)
 
   // Rate limit
   const [rateLimit, setRateLimit] = useState<RateLimitInfo | null>(null)
-
-  // Mobile sidebar toggle
-  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Toasts
   const [toasts, setToasts] = useState<ToastMessage[]>([])
@@ -71,7 +75,23 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
 
-  // Track rate limits globally
+  // Apply theme class to document element
+  useEffect(() => {
+    const root = document.documentElement
+    if (theme === 'dark') {
+      root.classList.add('dark', 'theme-dark')
+      root.classList.remove('theme-light')
+    } else {
+      root.classList.remove('dark', 'theme-dark')
+      root.classList.add('theme-light')
+    }
+  }, [theme])
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+  }
+
+  // Rate limit tracking
   useEffect(() => {
     return onRateLimitChange((info) => setRateLimit(info))
   }, [])
@@ -82,7 +102,7 @@ export default function App() {
       const parsed = parseRepoUrl(url)
       if (!parsed) {
         setRepoError(
-          'Invalid GitHub URL. Please provide a standard GitHub URL (e.g., https://github.com/amritanshguptadev/javascript-lab) or owner/repo format.'
+          'Invalid GitHub URL. Please provide a standard GitHub URL (e.g., https://github.com/amritanshguptadev/javascript-lab).'
         )
         return
       }
@@ -94,27 +114,22 @@ export default function App() {
       setFileError(null)
 
       try {
-        // Step 1: Fetch repository metadata
         const details = await fetchRepoDetails(parsed.owner, parsed.repo)
         setRepoInfo(details)
         setRepoUrl(url)
 
-        // Step 2: Fetch branches dynamically
         const branchList = await fetchRepoBranches(parsed.owner, parsed.repo, details.defaultBranch)
         setBranches(branchList)
 
-        // Determine branch to activate (target override, default branch, or first branch)
         const activeBranch =
           targetBranchOverride ||
           details.defaultBranch ||
           (branchList.length > 0 ? branchList[0].name : 'main')
         setCurrentBranch(activeBranch)
 
-        // Step 3: Fetch latest commit for this branch
         const commit = await fetchLatestCommit(parsed.owner, parsed.repo, activeBranch)
         setLatestCommit(commit)
 
-        // Step 4: Fetch Git tree
         setIsTreeLoading(true)
         const treeResult = await fetchRepoTree(parsed.owner, parsed.repo, commit.sha)
         const builtTree = buildFileTree(treeResult.items)
@@ -124,7 +139,7 @@ export default function App() {
         setLastSyncTime(new Date())
         setSyncState('synced')
 
-        // Auto-select README.md if present at root
+        // Auto-select README.md if present
         const readmeNode = builtTree.find(
           (n) => n.type === 'blob' && n.name.toLowerCase() === 'readme.md'
         )
@@ -156,7 +171,6 @@ export default function App() {
       setSelectedFileNode(node)
       setIsFileLoading(true)
       setFileError(null)
-      setSidebarOpen(false) // Close mobile drawer on selection
 
       try {
         const data = await fetchFileContent(owner, repo, node.path, branch, node.sha)
@@ -188,7 +202,6 @@ export default function App() {
         setTreeNodes(builtTree)
         setIsTreeTruncated(treeResult.isTruncated)
 
-        // If open file exists in new branch, refresh it, otherwise reset
         if (selectedFileNode) {
           const fileStillExists = treeResult.items.some(
             (i) => i.type === 'blob' && i.path === selectedFileNode.path
@@ -199,8 +212,8 @@ export default function App() {
             setSelectedFileNode(null)
             setFileContentData(null)
             addToast({
-              title: 'File not in branch',
-              description: `"${selectedFileNode.path}" does not exist in branch ${branchName}.`,
+              title: 'File not found in branch',
+              description: `"${selectedFileNode.path}" is not present in branch ${branchName}.`,
               type: 'info',
             })
           }
@@ -223,12 +236,11 @@ export default function App() {
     [repoInfo, currentBranch, selectedFileNode, loadFile, addToast]
   )
 
-  // Automatic Sync Check logic (ETag/Commit SHA based)
+  // Sync check
   const checkForUpdates = useCallback(
     async (isManual = false) => {
       if (!repoInfo || !currentBranch) return
 
-      // Don't poll if paused unless manually requested
       if (!autoSyncEnabled && !isManual) {
         setSyncState('paused')
         return
@@ -239,32 +251,27 @@ export default function App() {
       try {
         const newCommit = await fetchLatestCommit(repoInfo.owner, repoInfo.name, currentBranch)
 
-        // Check whether a new commit SHA was pushed to GitHub
         if (latestCommit && newCommit.sha !== latestCommit.sha) {
-          // New commit detected!
           setLatestCommit(newCommit)
-
-          // Refresh tree
           setIsTreeLoading(true)
           const treeResult = await fetchRepoTree(repoInfo.owner, repoInfo.name, newCommit.sha)
           const updatedTree = buildFileTree(treeResult.items)
           setTreeNodes(updatedTree)
           setIsTreeTruncated(treeResult.isTruncated)
 
-          // If a file was open, refresh it if still existing
           if (selectedFileNode) {
             loadFile(repoInfo.owner, repoInfo.name, selectedFileNode, currentBranch)
           }
 
           addToast({
-            title: 'Repository updated',
-            description: `New commit detected: "${newCommit.message.split('\n')[0]}" (${newCommit.shortSha})`,
+            title: 'Repository Synchronized',
+            description: `New commit: "${newCommit.message.split('\n')[0]}" (${newCommit.shortSha})`,
             type: 'success',
           })
         } else if (isManual) {
           addToast({
-            title: 'Up to date',
-            description: `Repository is already synchronized with commit ${newCommit.shortSha}.`,
+            title: 'Sanctuary Up to Date',
+            description: `Synchronized with commit ${newCommit.shortSha}.`,
             type: 'info',
           })
         }
@@ -277,7 +284,7 @@ export default function App() {
         if (isManual) {
           const msg = err instanceof Error ? err.message : String(err)
           addToast({
-            title: 'Sync failed',
+            title: 'Sync Check Failed',
             description: msg,
             type: 'error',
           })
@@ -289,13 +296,12 @@ export default function App() {
     [repoInfo, currentBranch, autoSyncEnabled, latestCommit, selectedFileNode, loadFile, addToast]
   )
 
-  // Ref to always access latest checkForUpdates in intervals
   const checkRef = useRef(checkForUpdates)
   useEffect(() => {
     checkRef.current = checkForUpdates
   }, [checkForUpdates])
 
-  // Periodic 60s polling
+  // Periodic polling
   useEffect(() => {
     if (!autoSyncEnabled) {
       setSyncState('paused')
@@ -303,16 +309,14 @@ export default function App() {
     }
 
     const interval = setInterval(() => {
-      // Avoid polling if user has backgrounded the browser tab
       if (document.visibilityState === 'visible') {
         checkRef.current(false)
       }
-    }, AUTO_SYNC_INTERVAL_MS)
+    }, syncIntervalMs)
 
     return () => clearInterval(interval)
-  }, [autoSyncEnabled])
+  }, [autoSyncEnabled, syncIntervalMs])
 
-  // Resume check when user tabs back into the browser
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && autoSyncEnabled) {
@@ -323,15 +327,30 @@ export default function App() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [autoSyncEnabled])
 
-  // Initial load on mount
+  // Initial load
   useEffect(() => {
     connectRepository(DEFAULT_REPO_URL)
   }, [connectRepository])
 
+  // Count total files in tree
+  const totalFilesCount = treeNodes.reduce((acc, node) => {
+    let count = 0
+    function countLeaves(n: FileTreeNode) {
+      if (n.type === 'blob') count++
+      if (n.children) n.children.forEach(countLeaves)
+    }
+    countLeaves(node)
+    return acc + count
+  }, 0)
+
   return (
-    <div className="flex min-h-screen flex-col bg-slate-950 text-slate-100 selection:bg-sky-500/30 selection:text-sky-200">
-      {/* Top Navbar */}
+    <div className="flex h-screen flex-col overflow-hidden bg-white text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 selection:bg-amber-500/30 selection:text-amber-800 dark:selection:text-amber-200">
+      {/* Top Luxury Navbar with Multi-Page Navigation */}
       <Navbar
+        activePage={activePage}
+        onNavigate={setActivePage}
+        theme={theme}
+        onToggleTheme={toggleTheme}
         repo={repoInfo}
         branches={branches}
         currentBranch={currentBranch}
@@ -344,95 +363,102 @@ export default function App() {
         rateLimit={rateLimit}
       />
 
-      {/* Repo Connect and Metadata Bar */}
-      <RepoBar
-        currentUrl={repoUrl}
-        isLoading={isRepoLoading}
-        error={repoError}
-        repo={repoInfo}
-        latestCommit={latestCommit}
-        onConnect={(url) => connectRepository(url)}
-      />
-
-      {/* Main Workspace */}
-      <div className="relative flex flex-1 overflow-hidden">
-        {/* Mobile Sidebar Toggle Button */}
-        <div className="md:hidden absolute top-2 left-2 z-20">
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-900/90 px-2.5 py-1.5 text-xs font-semibold text-slate-200 shadow backdrop-blur"
-          >
-            {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-            <span>Files</span>
-          </button>
-        </div>
-
-        {/* Left Sidebar: File Explorer */}
-        <aside
-          className={`fixed inset-y-0 left-0 z-30 w-72 transform bg-slate-950 transition-transform duration-200 ease-in-out md:static md:translate-x-0 md:w-80 shrink-0 ${
-            sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
-          }`}
-        >
-          <div className="h-full pt-12 md:pt-0">
-            <FileExplorer
-              tree={treeNodes}
-              selectedPath={selectedFileNode?.path || null}
-              onSelectFile={(node) => {
-                if (repoInfo) {
-                  loadFile(repoInfo.owner, repoInfo.name, node, currentBranch)
-                }
-              }}
-              isTreeTruncated={isTreeTruncated}
-              isLoading={isTreeLoading}
-            />
-          </div>
-        </aside>
-
-        {/* Overlay backdrop on mobile */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 z-20 bg-black/60 backdrop-blur-xs md:hidden"
-            onClick={() => setSidebarOpen(false)}
+      {/* Page Routing Views */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {activePage === 'home' && (
+          <HomePage
+            repo={repoInfo}
+            latestCommit={latestCommit}
+            totalFiles={totalFilesCount}
+            isLoading={isRepoLoading}
+            error={repoError}
+            onConnect={(url) => connectRepository(url)}
+            onNavigate={setActivePage}
           />
         )}
 
-        {/* Right Main Panel: Built-in Source Code Viewer */}
-        <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <CodeViewer
-            fileData={fileContentData}
-            isLoading={isFileLoading}
-            error={fileError}
-            onRetry={() => {
+        {activePage === 'explorer' && (
+          <CodeExplorerPage
+            repo={repoInfo}
+            currentBranch={currentBranch}
+            tree={treeNodes}
+            isTreeTruncated={isTreeTruncated}
+            isTreeLoading={isTreeLoading}
+            selectedNode={selectedFileNode}
+            fileContent={fileContentData}
+            isFileLoading={isFileLoading}
+            fileError={fileError}
+            onSelectFile={(node) => {
+              if (repoInfo) {
+                loadFile(repoInfo.owner, repoInfo.name, node, currentBranch)
+              }
+            }}
+            onRetryFile={() => {
               if (repoInfo && selectedFileNode) {
                 loadFile(repoInfo.owner, repoInfo.name, selectedFileNode, currentBranch)
               }
             }}
           />
-        </main>
+        )}
+
+        {activePage === 'playground' && (
+          <PlaygroundPage
+            repo={repoInfo}
+            currentBranch={currentBranch}
+            tree={treeNodes}
+          />
+        )}
+
+        {activePage === 'analytics' && (
+          <AnalyticsPage
+            repo={repoInfo}
+            tree={treeNodes}
+            currentBranch={currentBranch}
+            latestCommit={latestCommit}
+          />
+        )}
+
+        {activePage === 'settings' && (
+          <SettingsPage
+            theme={theme}
+            onToggleTheme={toggleTheme}
+            autoSyncEnabled={autoSyncEnabled}
+            onToggleAutoSync={() => setAutoSyncEnabled(!autoSyncEnabled)}
+            syncInterval={syncIntervalMs}
+            onChangeSyncInterval={setSyncIntervalMs}
+            rateLimit={rateLimit}
+            onClearCache={() => {
+              addToast({
+                title: 'Cache Purged',
+                description: 'Local repository cache has been cleared.',
+                type: 'info',
+              })
+            }}
+          />
+        )}
       </div>
 
-      {/* Footer Status Bar */}
-      <footer className="border-t border-slate-800/80 bg-slate-950/90 px-4 py-1.5 text-[11px] text-slate-500 flex flex-wrap items-center justify-between gap-2">
+      {/* Footer Status Bar with Gold Accents */}
+      <footer className="border-t border-amber-200/60 bg-amber-50/50 px-4 py-1.5 text-[11px] text-slate-600 dark:border-amber-500/20 dark:bg-slate-950 dark:text-slate-400 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-slate-400 font-mono">
-            <Terminal className="h-3 w-3 text-sky-400" />
-            CodeVault
+          <span className="flex items-center gap-1 font-bold text-amber-700 dark:text-amber-400">
+            <Crown className="h-3.5 w-3.5" />
+            JavaLand Sanctuary
           </span>
           {repoInfo && (
-            <span>
-              Connected to <strong className="text-slate-300">{repoInfo.fullName}</strong> ({currentBranch})
+            <span className="hidden sm:inline">
+              Active: <strong className="text-slate-800 dark:text-slate-200">{repoInfo.fullName}</strong> ({currentBranch})
             </span>
           )}
         </div>
 
         <div className="flex items-center gap-4">
           <span>
-            Auto-Sync: <span className={autoSyncEnabled ? 'text-emerald-400' : 'text-amber-400'}>{autoSyncEnabled ? 'Every 60s' : 'Paused'}</span>
+            Sync: <strong className={autoSyncEnabled ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500'}>{autoSyncEnabled ? `${syncIntervalMs / 1000}s` : 'Paused'}</strong>
           </span>
           {rateLimit && (
-            <span>
-              API Quota: <span className="text-slate-300">{rateLimit.remaining}</span>/{rateLimit.limit}
+            <span className="hidden md:inline">
+              API Quota: <strong className="text-amber-600 dark:text-amber-400">{rateLimit.remaining}</strong>/{rateLimit.limit}
             </span>
           )}
         </div>

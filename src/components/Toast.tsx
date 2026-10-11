@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Sparkles, AlertCircle, Info, X } from 'lucide-react'
+import { Sparkles, AlertCircle, X, Crown } from 'lucide-react'
 
 export interface ToastMessage {
   id: string
@@ -33,37 +33,37 @@ export const Toast: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`flex items-start gap-2.5 rounded-xl border p-3.5 shadow-2xl backdrop-blur-lg transition-all animate-in fade-in slide-in-from-bottom-2 ${
+          className={`flex items-start gap-2.5 rounded-2xl border-2 p-3.5 shadow-2xl backdrop-blur-lg transition-all animate-in fade-in slide-in-from-bottom-2 ${
             toast.type === 'success'
-              ? 'border-emerald-500/40 bg-slate-900/95 text-emerald-300'
+              ? 'border-amber-400 bg-white/95 text-amber-900 shadow-amber-500/20 dark:border-amber-500/40 dark:bg-slate-900/95 dark:text-amber-300'
               : toast.type === 'warning'
-              ? 'border-amber-500/40 bg-slate-900/95 text-amber-300'
+              ? 'border-yellow-400 bg-white/95 text-yellow-900 shadow-yellow-500/20 dark:border-yellow-500/40 dark:bg-slate-900/95 dark:text-yellow-300'
               : toast.type === 'error'
-              ? 'border-rose-500/40 bg-slate-900/95 text-rose-300'
-              : 'border-sky-500/40 bg-slate-900/95 text-sky-300'
+              ? 'border-rose-400 bg-white/95 text-rose-900 shadow-rose-500/20 dark:border-rose-500/40 dark:bg-slate-900/95 dark:text-rose-300'
+              : 'border-amber-300 bg-white/95 text-slate-800 shadow-amber-500/20 dark:border-amber-500/40 dark:bg-slate-900/95 dark:text-slate-200'
           }`}
         >
           {toast.type === 'success' ? (
-            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+            <Crown className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
           ) : toast.type === 'warning' ? (
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-yellow-500" />
           ) : toast.type === 'error' ? (
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-400" />
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-500" />
           ) : (
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-sky-400" />
+            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
           )}
 
           <div className="flex-1">
-            <h5 className="text-xs font-semibold text-slate-100">{toast.title}</h5>
+            <h5 className="text-xs font-bold">{toast.title}</h5>
             {toast.description && (
-              <p className="mt-0.5 text-[11px] text-slate-400">{toast.description}</p>
+              <p className="mt-0.5 text-[11px] text-slate-600 dark:text-slate-400">{toast.description}</p>
             )}
           </div>
 
           <button
             type="button"
             onClick={() => onDismiss(toast.id)}
-            className="text-slate-400 hover:text-slate-200"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
           >
             <X className="h-3.5 w-3.5" />
           </button>

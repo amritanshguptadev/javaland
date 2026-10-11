@@ -1,63 +1,58 @@
-# CodeVault — GitHub Repository Explorer
+# JavaLand — Royal Code Sanctuary & Repository Explorer
 
-[![React](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6-purple.svg)](https://vitejs.dev/)
-[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38bdf8.svg)](https://tailwindcss.com/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-19-f59e0b.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-d97706.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-6-amber.svg)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-fbbf24.svg)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**CodeVault** is a modern, developer-centric web application that allows users to explore public GitHub repositories, browse nested folder structures, inspect syntax-highlighted source code, and monitor repository updates directly in the browser without needing to visit GitHub.
+**JavaLand** is a bespoke, multi-page creative developer workspace and repository explorer designed with a luxurious **Golden & White aesthetic** (Royal Ivory & Gold with Midnight Obsidian Gold support). It moves far beyond a simple file-listing utility, offering an interactive, multi-dimensional code experience.
 
 ---
 
-## ✨ Features
+## 🏰 Multi-Page Experience & Creative Features
 
-- **Dynamic Public Repository Connection**:
-  - Connect to any public GitHub repository via standard URL (e.g. `https://github.com/amritanshguptadev/javascript-lab`) or `owner/repo` format.
-  - Automatically extracts repository owner, name, description, star count, fork count, and visibility.
-  - Initial default repository: [amritanshguptadev/javascript-lab](https://github.com/amritanshguptadev/javascript-lab).
-  - No repository trees, files, or commits are hardcoded; everything is fetched dynamically via the GitHub REST API.
+Unlike traditional single-page directory viewers, **JavaLand** is organized into 5 dedicated pages:
 
-- **Dynamic Branch Detection & Switching**:
-  - Dynamically queries the default branch (e.g., `main` or `master`) via GitHub API.
-  - Interactive branch selector dropdown allowing instant switching between active branches.
-  - Tree and open file refresh automatically upon switching branches.
+### 1. 🏰 Sanctuary Hub (`/home`)
+- **Royal Hero Banner**: Crown-crested welcome section with golden gradients, fluid animations, and a quick-connect search bar.
+- **Connected Repository Showcase**: Luxury card showing real-time owner, stars, forks, language, and latest commit SHA & message.
+- **Featured Repositories Deck**: Instant one-click connection to curated repositories like `amritanshguptadev/javascript-lab` (Default), `facebook/react`, `vuejs/core`, and `tailwindlabs/tailwindcss`.
+- **Sanctuary Modules Grid**: Quick jump cards to all platform areas.
 
-- **Hierarchical File & Directory Explorer**:
-  - Full nested tree view displaying folders and files with proper directory indentation.
-  - Distinguishes folders from files visually with dedicated language/type icons (JavaScript, TypeScript, HTML, CSS, JSON, Markdown, Python, C/C++, Java, Shell, etc.).
-  - Expand and collapse folders with animated chevrons.
-  - Expand All and Collapse All shortcuts.
-  - Truncation detection with graceful fallback notification when GitHub returns a truncated recursive tree.
+### 2. ⚡ Code Studio (`/explorer`)
+- **Creative Nested Tree Explorer**: Hierarchical folder explorer with golden chevron indicators, custom file icons by extension, and instant filename/path search.
+- **Built-in Code Viewer**: Powered by PrismJS with warm golden token highlighting, sticky line numbers column, breadcrumbs, copy with animated feedback, and file download.
+- **Studio Compass Inspector**: A collapsible side panel displaying blob SHA, formatted byte size, line count, full path, and copy path shortcuts.
 
-- **Instant Filename & Path Search**:
-  - Live filtering as the user types in the search bar.
-  - Matches filenames and nested paths while preserving ancestor folder hierarchies.
-  - Auto-expands matching folder paths and displays real-time match counters.
+### 3. 🧪 Live Lab Runner (`/playground`)
+- **Interactive Execution Sandbox**: Built specifically for repositories with web projects (such as `amritanshguptadev/javascript-lab`'s `lab 1` through `lab 6`).
+- **Live Sandboxed Preview**: Renders and executes the lab's `index.html` and `script.js` in a secure browser sandbox.
+- **Multi-Tab Inspector**: Switch seamlessly between **Interactive Preview**, **HTML Source**, **JavaScript Source**, and **Live Console**.
+- **Real-Time Console Capture**: Intercepts `console.log`, `console.warn`, and `console.error` from the running lab and streams them into the live console panel.
+- **Rerun Lab Button**: Instantly resets and re-executes lab logic.
 
-- **Built-in Syntax-Highlighted Code Viewer**:
-  - Powered by PrismJS with dark developer theme (JetBrains / Charcoal inspired palette).
-  - Sticky line numbers column with monospace typography.
-  - Line wrap toggle for long lines and horizontal scrolling support.
-  - Breadcrumb navigation showing full path hierarchy.
-  - File metadata strip: file size (formatted B/KB/MB), language badge, line count.
-  - Image preview for `.png`, `.jpg`, `.jpeg`, `.svg`, `.gif`, `.webp` files with checkered transparency background.
-  - Safe binary file handling with direct download button.
-  - Copy code to clipboard with animated feedback.
-  - Download file action and direct GitHub raw file link.
+### 4. 📊 Repository Analytics (`/analytics`)
+- **File Type & Language Distribution**: Interactive progress bars showcasing percentage breakdown by extension (`.js`, `.html`, `.css`, `.md`, etc.) with file counts and total bytes.
+- **Volume & Metrics**: Total files, directory count, and total repository payload volume.
+- **Largest Files Breakdown**: Top files sorted by size with formatted byte badges.
+- **Branch & Commit Card**: Displays active branch and latest commit SHA.
 
-- **Automatic Synchronization (Commit Polling)**:
-  - Detects new commits pushed to the repository automatically using lightweight 60-second periodic polling.
-  - Compares commit SHAs to avoid redundant tree and file re-downloads.
-  - Tab visibility awareness: polling automatically pauses when the browser tab is hidden and resumes when focused.
-  - Manual sync refresh button in the navbar.
-  - Auto-sync toggle (play/pause).
-  - Toast notification banners whenever changes are detected.
+### 5. ⚙️ Sanctuary Preferences (`/settings`)
+- **Theme Selector**: Toggle between **Royal Ivory & Gold** (pristine white with liquid gold highlights) and **Midnight Obsidian Gold** (deep dark backdrop with luminous 24K gold accents).
+- **Auto-Sync Polling**: Configure periodic commit polling (15s, 30s, 60s standard, 120s, or pause).
+- **GitHub API Quota Meter**: Real-time progress bar displaying remaining unauthenticated requests and reset timestamp.
+- **Cache Management**: One-click purge of in-memory tree and file caches.
 
-- **API Rate Limit & Security**:
-  - Rate limit tracking: captures `x-ratelimit-remaining` and `x-ratelimit-reset` headers from responses and displays remaining quota in the UI.
-  - Public-only mode without embedding or asking for tokens, eliminating credential leak risks.
-  - Code is rendered as data, never executed in the browser.
+---
+
+## 🎨 Aesthetic & Design System
+
+- **Color Palette**:
+  - *Royal Ivory & Gold*: Cream/pearl backdrop (`#fbf9f5`), rich white cards (`#ffffff`), liquid gold gradients (`#f59e0b` to `#d97706`), champagne highlights (`#fef3c7`).
+  - *Midnight Obsidian Gold*: Obsidian black (`#0c0e12`), dark slate cards (`#141721`), luminous 24K gold accents (`#fbbf24`).
+- **Prism Token Styling**: Warm amber keywords, celestial blue functions, emerald strings, and gold variables.
+- **Custom Accents**: Golden rounded scrollbars, warm glowing card borders, and smooth micro-interactions.
 
 ---
 
@@ -72,20 +67,13 @@
 | **Icons** | Lucide React |
 | **Code Highlighting** | PrismJS |
 | **API** | GitHub REST API v3 |
-| **Deployment** | Vercel (SPA rewrite configured) |
+| **Hosting** | Vercel (SPA routing configured) |
 
 ---
 
-## 🚀 Getting Started (Local Development)
+## 🚀 Local Development
 
-### Prerequisites
-
-- Node.js (version 18+ or 20+ recommended)
-- npm or yarn or pnpm
-
-### Installation
-
-1. Clone or copy the project files to your local machine:
+1. Open your terminal in the project directory:
    ```bash
    cd "java king"
    ```
@@ -95,12 +83,12 @@
    npm install
    ```
 
-3. Start the local development server:
+3. Run the development server:
    ```bash
    npm run dev
    ```
 
-4. Open your browser and navigate to:
+4. Open your browser at:
    ```
    http://localhost:5173/
    ```
@@ -109,72 +97,34 @@
 
 ## 📦 Production Build
 
-To test and build the production bundle:
+To test and compile the production bundle:
 
 ```bash
 npm run build
 ```
 
-This will run TypeScript type checking (`tsc -b`) and bundle optimized static assets into the `dist/` directory.
-
-To preview the production build locally:
-
-```bash
-npm run preview
-```
+The output is bundled into the `dist/` directory.
 
 ---
 
-## 🌐 Deployment to Vercel
+## 🌐 Deploy to Vercel
 
-The application is pre-configured for seamless deployment to Vercel.
-
-### Option 1: Deploy via Vercel Dashboard (Recommended)
-
-1. **Push your code to GitHub**:
+1. **Commit and Push to GitHub**:
    ```bash
-   git init
    git add .
-   git commit -m "Initial commit of CodeVault"
-   git remote add origin https://github.com/<your-username>/codevault.git
+   git commit -m "JavaLand: Royal Code Sanctuary multi-page release"
+   git remote add origin https://github.com/<your-username>/javaland.git
    git push -u origin main
    ```
 
 2. **Import into Vercel**:
    - Go to [vercel.com](https://vercel.com) and log in.
-   - Click **Add New...** > **Project**.
-   - Select your `codevault` repository.
-
-3. **Verify Build Settings**:
-   - **Framework Preset**: Vite
-   - **Root Directory**: `./` (leave default)
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-   - **Install Command**: `npm install`
-
-4. **Deploy**:
-   - Click **Deploy**. Vercel will build and deploy the app with a production URL (e.g., `https://codevault.vercel.app`).
-   - The included `vercel.json` ensures client-side routing works without 404 errors.
-
-### Option 2: Deploy using Vercel CLI
-
-```bash
-npm i -g vercel
-vercel
-```
-
-Follow the interactive prompts to deploy directly.
-
----
-
-## 🔒 Security & API Notes
-
-- **Zero Credentials in Frontend**: CodeVault operates entirely on GitHub's public REST API. No API tokens or secrets are stored in the codebase or client bundle.
-- **Unauthenticated Rate Limits**: GitHub provides 60 unauthenticated requests per hour per IP address. CodeVault implements in-memory caching for trees and file contents to minimize requests. The current remaining quota and reset time are visible in the navbar and footer.
-- **Safe Code Rendering**: File contents are rendered securely inside pre-formatted blocks with HTML entity escaping or Prism tokenization. No user or repository code is executed as scripts.
+   - Click **Add New...** > **Project** and select your repository.
+   - Framework preset: **Vite** (Build command: `npm run build`, Output directory: `dist`).
+   - Click **Deploy**. The included `vercel.json` provides client-side SPA routing rewrites.
 
 ---
 
 ## 📄 License
 
-MIT License. Free for personal and commercial exploration.
+MIT License. Crafted with regal precision.
