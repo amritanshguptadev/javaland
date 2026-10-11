@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import Prism from 'prismjs'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-markup'
+
 import {
   FlaskConical,
   Play,
@@ -6,7 +10,9 @@ import {
   FileCode,
   Terminal,
   Code2,
-  CheckCircle2
+  CheckCircle2,
+  Copy,
+  Check
 } from 'lucide-react'
 import type { FileTreeNode, RepoInfo } from '../types'
 import { fetchFileContent } from '../services/github'
@@ -58,6 +64,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
   const [isLoadingLab, setIsLoadingLab] = useState(false)
   const [consoleLogs, setConsoleLogs] = useState<string[]>([])
   const [runKey, setRunKey] = useState(0)
+  const [copied, setCopied] = useState(false)
 
   // Auto-select first lab on load
   useEffect(() => {
@@ -111,11 +118,43 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
     }
   }, [selectedLabId, repo, currentBranch, availableLabs])
 
+  // Syntax highlighting for HTML source
+  const highlightedHtml = useMemo(() => {
+    if (!htmlContent) return ''
+    try {
+      return Prism.highlight(htmlContent, Prism.languages.markup || Prism.languages.html, 'html')
+    } catch {
+      return htmlContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    }
+  }, [htmlContent])
+
+  // Syntax highlighting for JS source
+  const highlightedJs = useMemo(() => {
+    if (!jsContent) return ''
+    try {
+      return Prism.highlight(jsContent, Prism.languages.javascript, 'javascript')
+    } catch {
+      return jsContent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    }
+  }, [jsContent])
+
+  const htmlLineCount = useMemo(() => htmlContent ? htmlContent.split('\n').length : 0, [htmlContent])
+  const jsLineCount = useMemo(() => jsContent ? jsContent.split('\n').length : 0, [jsContent])
+
+  const handleCopyCode = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // ignore
+    }
+  }
+
   // Construct iframe source with console capture
   const sandboxDocument = useMemo(() => {
     if (!htmlContent) return ''
 
-    // Injection script to capture console.log and forward to parent
     const consoleCaptureScript = `
       <script>
         (function() {
@@ -138,10 +177,8 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
       </script>
     `
 
-    // Inject JS script tag if separate jsContent exists
     const scriptToInject = jsContent ? `<script>\n${jsContent}\n</script>` : ''
 
-    // If html contains </body>, inject before it, else append
     if (htmlContent.includes('</body>')) {
       return htmlContent
         .replace('<head>', `<head>${consoleCaptureScript}`)
@@ -191,7 +228,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             <button
               type="button"
               onClick={handleRerun}
-              className="gold-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold shadow"
+              className="gold-button flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold shadow cursor-pointer"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               <span>Rerun Lab</span>
@@ -209,7 +246,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
                 key={lab.id}
                 type="button"
                 onClick={() => setSelectedLabId(lab.id)}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition shrink-0 ${
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition shrink-0 cursor-pointer ${
                   isSelected
                     ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold shadow-md shadow-amber-500/20'
                     : 'border border-amber-200 bg-amber-50/50 text-slate-700 hover:bg-amber-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -227,14 +264,14 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
       </div>
 
       {/* Main Workspace */}
-      <div className="flex flex-1 flex-col overflow-hidden max-w-7xl mx-auto w-full p-4 gap-4">
+      <div className="flex flex-1 flex-col overflow-hidden max-w-7xl mx-auto w-full p-4 gap-4 min-h-[600px]">
         {/* Tab selection */}
-        <div className="flex items-center justify-between border-b border-amber-200/50 pb-2 dark:border-slate-800">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/50 pb-2 dark:border-slate-800">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={() => setActiveTab('preview')}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'preview'
                   ? 'bg-amber-500 text-slate-950 shadow'
                   : 'text-slate-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -247,7 +284,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('html')}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'html'
                   ? 'bg-amber-500 text-slate-950 shadow'
                   : 'text-slate-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -260,7 +297,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('js')}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'js'
                   ? 'bg-amber-500 text-slate-950 shadow'
                   : 'text-slate-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -273,7 +310,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('console')}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition cursor-pointer ${
                 activeTab === 'console'
                   ? 'bg-amber-500 text-slate-950 shadow'
                   : 'text-slate-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:bg-slate-800'
@@ -290,7 +327,7 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
         </div>
 
         {/* View container */}
-        <div className="flex-1 overflow-hidden rounded-2xl border-2 border-amber-300/80 bg-white shadow-xl dark:border-amber-500/30 dark:bg-slate-900">
+        <div className="flex-1 overflow-hidden rounded-2xl border-2 border-amber-300/80 bg-white shadow-xl dark:border-amber-500/30 dark:bg-slate-900 min-h-[480px] flex flex-col">
           {isLoadingLab ? (
             <div className="flex h-full flex-col items-center justify-center p-8 text-center text-slate-500">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
@@ -298,39 +335,106 @@ export const PlaygroundPage: React.FC<PlaygroundPageProps> = ({
             </div>
           ) : activeTab === 'preview' ? (
             /* Live Iframe Sandbox */
-            <div className="h-full w-full bg-white">
+            <div className="h-full w-full bg-white flex-1 min-h-[450px]">
               <iframe
                 key={runKey}
                 title="Lab Interactive Runner"
                 srcDoc={sandboxDocument}
                 sandbox="allow-scripts allow-modals allow-same-origin"
-                className="h-full w-full border-none"
+                className="h-full w-full border-none min-h-[450px]"
               />
             </div>
           ) : activeTab === 'html' ? (
-            /* HTML Source View */
-            <div className="h-full overflow-auto p-4 font-mono text-xs text-slate-800 dark:text-slate-200 bg-slate-950">
-              <pre className="whitespace-pre-wrap">{htmlContent}</pre>
+            /* HTML Source View — High Contrast & Syntax Highlighted */
+            <div className="flex-1 flex flex-col bg-[#0b0e14] text-slate-100 overflow-hidden font-mono text-xs">
+              <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-4 py-2">
+                <span className="text-[11px] font-bold text-amber-400 font-sans">
+                  HTML Source (index.html)
+                </span>
+                <div className="flex items-center gap-3 font-sans">
+                  <span className="text-[10px] text-slate-400 font-mono">{htmlLineCount} lines</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyCode(htmlContent)}
+                    className="flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-[11px] font-bold text-amber-300 hover:bg-slate-700 transition cursor-pointer"
+                  >
+                    {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                    <span>{copied ? 'Copied!' : 'Copy HTML'}</span>
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-auto flex">
+                <div className="select-none border-r border-slate-800 bg-[#07090e] px-3 py-3 text-right font-mono text-[11px] text-amber-500/60 shrink-0">
+                  {Array.from({ length: htmlLineCount }).map((_, i) => (
+                    <div key={i + 1} className="leading-[1.6rem] h-[1.6rem]">{i + 1}</div>
+                  ))}
+                </div>
+                <div className="flex-1 p-3 overflow-x-auto">
+                  <pre className="code-studio-container m-0 p-0 text-[12px] leading-[1.6rem] text-slate-100 whitespace-pre">
+                    <code
+                      className="language-html"
+                      dangerouslySetInnerHTML={{ __html: highlightedHtml }}
+                    />
+                  </pre>
+                </div>
+              </div>
             </div>
           ) : activeTab === 'js' ? (
-            /* JavaScript Source View */
-            <div className="h-full overflow-auto p-4 font-mono text-xs text-slate-800 dark:text-slate-200 bg-slate-950">
-              <pre className="whitespace-pre-wrap">{jsContent}</pre>
+            /* JavaScript Source View — High Contrast & Syntax Highlighted */
+            <div className="flex-1 flex flex-col bg-[#0b0e14] text-slate-100 overflow-hidden font-mono text-xs">
+              <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/90 px-4 py-2">
+                <span className="text-[11px] font-bold text-amber-400 font-sans">
+                  JavaScript Source (script.js)
+                </span>
+                <div className="flex items-center gap-3 font-sans">
+                  <span className="text-[10px] text-slate-400 font-mono">{jsLineCount} lines</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyCode(jsContent)}
+                    className="flex items-center gap-1 rounded bg-slate-800 px-2 py-1 text-[11px] font-bold text-amber-300 hover:bg-slate-700 transition cursor-pointer"
+                  >
+                    {copied ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                    <span>{copied ? 'Copied!' : 'Copy JavaScript'}</span>
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-auto flex">
+                <div className="select-none border-r border-slate-800 bg-[#07090e] px-3 py-3 text-right font-mono text-[11px] text-amber-500/60 shrink-0">
+                  {Array.from({ length: jsLineCount }).map((_, i) => (
+                    <div key={i + 1} className="leading-[1.6rem] h-[1.6rem]">{i + 1}</div>
+                  ))}
+                </div>
+                <div className="flex-1 p-3 overflow-x-auto">
+                  <pre className="code-studio-container m-0 p-0 text-[12px] leading-[1.6rem] text-slate-100 whitespace-pre">
+                    <code
+                      className="language-javascript"
+                      dangerouslySetInnerHTML={{ __html: highlightedJs }}
+                    />
+                  </pre>
+                </div>
+              </div>
             </div>
           ) : (
             /* Console Output */
-            <div className="h-full overflow-auto bg-slate-950 p-4 font-mono text-xs text-emerald-400">
-              <div className="mb-2 border-b border-slate-800 pb-2 text-[11px] text-slate-500">
-                Sandbox Console Output — logs captured from execution:
+            <div className="h-full overflow-auto bg-[#0b0e14] p-4 font-mono text-xs text-emerald-400 flex-1">
+              <div className="mb-2 border-b border-slate-800 pb-2 text-[11px] text-slate-400 font-sans flex items-center justify-between">
+                <span>Sandbox Console Output — logs captured from execution:</span>
+                <button
+                  type="button"
+                  onClick={() => setConsoleLogs([])}
+                  className="text-amber-400 hover:underline text-[10px] cursor-pointer"
+                >
+                  Clear Console
+                </button>
               </div>
               {consoleLogs.length > 0 ? (
                 consoleLogs.map((log, index) => (
-                  <div key={index} className="py-1 border-b border-slate-900">
+                  <div key={index} className="py-1 border-b border-slate-900 font-mono text-[12px] leading-relaxed">
                     {log}
                   </div>
                 ))
               ) : (
-                <p className="text-slate-500 italic">No console logs output yet. Click "Rerun Lab" or interact with the preview.</p>
+                <p className="text-slate-500 italic py-4">No console logs output yet. Click "Rerun Lab" or interact with the preview.</p>
               )}
             </div>
           )}
