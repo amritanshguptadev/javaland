@@ -6,53 +6,55 @@
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-fbbf24.svg)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**JavaLand** is a bespoke, multi-page creative developer workspace and repository explorer designed with a luxurious **Golden & White aesthetic** (Royal Ivory & Gold with Midnight Obsidian Gold support). It moves far beyond a simple file-listing utility, offering an interactive, multi-dimensional code experience.
+**JavaLand** is an ultra-luxurious, multi-page creative developer sanctuary and repository explorer. Designed with regal aesthetics and powered by 6 complete atmospheric visual themes, JavaLand provides instant exploration, code viewing, live interactive lab sandbox running, and repository analytics with zero unnecessary API overhead.
 
 ---
 
-## 🏰 Multi-Page Experience & Creative Features
+## 🏰 Multi-Page Experience & Architecture
 
-Unlike traditional single-page directory viewers, **JavaLand** is organized into 5 dedicated pages:
+JavaLand is crafted as a multi-page sanctuary with a persistent universal header, regal floating quick actions, and unified footer:
 
 ### 1. 🏰 Sanctuary Hub (`/home`)
-- **Royal Hero Banner**: Crown-crested welcome section with golden gradients, fluid animations, and a quick-connect search bar.
-- **Connected Repository Showcase**: Luxury card showing real-time owner, stars, forks, language, and latest commit SHA & message.
-- **Featured Repositories Deck**: Instant one-click connection to curated repositories like `amritanshguptadev/javascript-lab` (Default), `facebook/react`, `vuejs/core`, and `tailwindlabs/tailwindcss`.
-- **Sanctuary Modules Grid**: Quick jump cards to all platform areas.
+- **Royal Hero Banner**: Majestic welcome section with theme-tailored ambient lighting, animated badges, and quick-connect input.
+- **Flagship Connection**: Permanent integration for `amritanshguptadev/javascript-lab` with real-time metadata, live branch, commit SHA, and stars.
+- **Multi-Repo Dock**: Instant one-click connection to switch repositories smoothly (`javascript-lab`, `react`, `vue`, `tailwindcss`) or connect any custom GitHub repo.
+- **Sanctuary Modules Grid**: Direct gateways to the Studio, Lab Sandbox, and Repository Analytics.
 
 ### 2. ⚡ Code Studio (`/explorer`)
-- **Creative Nested Tree Explorer**: Hierarchical folder explorer with golden chevron indicators, custom file icons by extension, and instant filename/path search.
-- **Built-in Code Viewer**: Powered by PrismJS with warm golden token highlighting, sticky line numbers column, breadcrumbs, copy with animated feedback, and file download.
-- **Studio Compass Inspector**: A collapsible side panel displaying blob SHA, formatted byte size, line count, full path, and copy path shortcuts.
+- **Creative Nested Tree Explorer**: Hierarchical folder navigator with smooth chevron expansion, custom file icons, and instant real-time filename filter.
+- **High-Contrast Code Viewer**: Powered by PrismJS with theme-reactive syntax highlighting, sticky line numbering, breadcrumbs, animated copy feedback, and instant raw file download.
+- **Zero-API In-Memory & Session Caching**: Once loaded, tree structures and file contents are cached in `sessionStorage`—browsing previously opened files costs 0 GitHub API requests.
+- **Studio Compass Inspector**: Real-time side inspector displaying file size, line counts, SHA, exact path, and quick copy triggers.
 
 ### 3. 🧪 Live Lab Runner (`/playground`)
-- **Interactive Execution Sandbox**: Built specifically for repositories with web projects (such as `amritanshguptadev/javascript-lab`'s `lab 1` through `lab 6`).
-- **Live Sandboxed Preview**: Renders and executes the lab's `index.html` and `script.js` in a secure browser sandbox.
+- **Interactive Execution Sandbox**: Built specifically for web projects and interactive tutorials (such as `amritanshguptadev/javascript-lab`'s `lab 1` through `lab 6`).
+- **Live Sandboxed Preview**: Executes HTML and JS in an isolated, safe iframe sandbox.
 - **Multi-Tab Inspector**: Switch seamlessly between **Interactive Preview**, **HTML Source**, **JavaScript Source**, and **Live Console**.
-- **Real-Time Console Capture**: Intercepts `console.log`, `console.warn`, and `console.error` from the running lab and streams them into the live console panel.
-- **Rerun Lab Button**: Instantly resets and re-executes lab logic.
+- **Real-Time Console Stream**: Intercepts `console.log`, `console.warn`, and `console.error` and streams formatted output into the live console panel.
+- **Instant Lab Switcher**: Quick pill selector for labs with one-click reload.
 
 ### 4. 📊 Repository Analytics (`/analytics`)
-- **File Type & Language Distribution**: Interactive progress bars showcasing percentage breakdown by extension (`.js`, `.html`, `.css`, `.md`, etc.) with file counts and total bytes.
-- **Volume & Metrics**: Total files, directory count, and total repository payload volume.
-- **Largest Files Breakdown**: Top files sorted by size with formatted byte badges.
-- **Branch & Commit Card**: Displays active branch and latest commit SHA.
-
-### 5. ⚙️ Sanctuary Preferences (`/settings`)
-- **Theme Selector**: Toggle between **Royal Ivory & Gold** (pristine white with liquid gold highlights) and **Midnight Obsidian Gold** (deep dark backdrop with luminous 24K gold accents).
-- **Auto-Sync Polling**: Configure periodic commit polling (15s, 30s, 60s standard, 120s, or pause).
-- **GitHub API Quota Meter**: Real-time progress bar displaying remaining unauthenticated requests and reset timestamp.
-- **Cache Management**: One-click purge of in-memory tree and file caches.
+- **Language & Extension Breakdown**: Interactive progress bars detailing percentage distribution across file types (`.js`, `.html`, `.css`, `.md`, `.json`, etc.).
+- **Volume Metrics**: Total files, directory count, and computed payload weight.
+- **Heaviest Files Leaderboard**: Sorted table of largest files with formatted size badges.
+- **Repository Health & Commits**: Real-time commit SHA card and repository architecture overview.
 
 ---
 
-## 🎨 Aesthetic & Design System
+## 🎨 6 Immersive Atmospheric Themes
 
-- **Color Palette**:
-  - *Royal Ivory & Gold*: Cream/pearl backdrop (`#fbf9f5`), rich white cards (`#ffffff`), liquid gold gradients (`#f59e0b` to `#d97706`), champagne highlights (`#fef3c7`).
-  - *Midnight Obsidian Gold*: Obsidian black (`#0c0e12`), dark slate cards (`#141721`), luminous 24K gold accents (`#fbbf24`).
-- **Prism Token Styling**: Warm amber keywords, celestial blue functions, emerald strings, and gold variables.
-- **Custom Accents**: Golden rounded scrollbars, warm glowing card borders, and smooth micro-interactions.
+Switch seamlessly across 6 deeply crafted visual environments from the header menu or floating quick bar:
+
+| Theme | Ambient Mood | Visual Tone |
+|---|---|---|
+| **Ivory Imperial** | Crisp, royal palace ivory & liquid gold | Cream light canvas with amber gold highlights |
+| **Midnight Obsidian** | Ultra-deep black void & 24K gold | Deep dark canvas with shimmering golden accents |
+| **Emerald Sanctuary** | Mystical evergreen twilight & champagne gold | Deep emerald tones with lustrous champagne gold |
+| **Sapphire Abyss** | Midnight oceanic blue & celestial gold | Deep oceanic indigo with luminous starlight gold |
+| **Crimson Velvet** | Royal burgundy mahogany & bronze gold | Warm crimson dark tones with fiery gold details |
+| **Cosmic Amethyst** | Deep violet nebula & lavender gold | Royal amethyst canvas with incandescent lavender gold |
+
+*All themes persist in `localStorage` and adapt the entire interface: backgrounds, cards, typography, borders, badges, scrollbars, code viewers, and sandboxes.*
 
 ---
 
@@ -63,68 +65,60 @@ Unlike traditional single-page directory viewers, **JavaLand** is organized into
 | **Framework** | React 19 |
 | **Language** | TypeScript |
 | **Build Tool** | Vite 6 |
-| **Styling** | Tailwind CSS v4 |
+| **Styling** | Tailwind CSS v4 & Semantic CSS Theme Tokens |
 | **Icons** | Lucide React |
-| **Code Highlighting** | PrismJS |
-| **API** | GitHub REST API v3 |
-| **Hosting** | Vercel (SPA routing configured) |
+| **Syntax Highlighting** | PrismJS |
+| **API** | GitHub REST API v3 (Optimized with `sessionStorage` caching) |
+| **Hosting** | Vercel (Ready with `vercel.json` SPA catch-all rewrites) |
 
 ---
 
 ## 🚀 Local Development
 
-1. Open your terminal in the project directory:
-   ```bash
-   cd "java king"
-   ```
+```bash
+# 1. Clone repository
+git clone https://github.com/amritanshguptadev/javaland.git
+cd javaland
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+# 2. Install dependencies
+npm install
 
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
+# 3. Start local development server
+npm run dev
+```
 
-4. Open your browser at:
-   ```
-   http://localhost:5173/
-   ```
+Visit `http://localhost:5173/` in your browser.
 
 ---
 
 ## 📦 Production Build
 
-To test and compile the production bundle:
-
 ```bash
 npm run build
 ```
 
-The output is bundled into the `dist/` directory.
+The compiled, production-ready bundle will be in `dist/`.
 
 ---
 
 ## 🌐 Deploy to Vercel
 
-1. **Commit and Push to GitHub**:
-   ```bash
-   git add .
-   git commit -m "JavaLand: Royal Code Sanctuary multi-page release"
-   git remote add origin https://github.com/<your-username>/javaland.git
-   git push -u origin main
-   ```
+This repository is pre-configured for 1-click zero-config deployment on Vercel:
 
-2. **Import into Vercel**:
-   - Go to [vercel.com](https://vercel.com) and log in.
-   - Click **Add New...** > **Project** and select your repository.
-   - Framework preset: **Vite** (Build command: `npm run build`, Output directory: `dist`).
-   - Click **Deploy**. The included `vercel.json` provides client-side SPA routing rewrites.
+1. Push your changes to GitHub:
+   ```bash
+   git push origin main
+   ```
+2. In the [Vercel Dashboard](https://vercel.com/new):
+   - Import `amritanshguptadev/javaland`
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+   - Click **Deploy**
+3. `vercel.json` includes client-side SPA routing rewrites so all page URLs (`/`, `/home`, `/explorer`, `/playground`, `/analytics`) resolve smoothly on direct browser refresh.
 
 ---
 
 ## 📄 License
 
-MIT License. Crafted with regal precision.
+MIT License. Designed with royal elegance.
