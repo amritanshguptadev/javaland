@@ -35,7 +35,7 @@ const DEFAULT_REPO_URL = 'https://github.com/amritanshguptadev/javascript-lab'
 
 export default function App() {
   const [activePage, setActivePage] = useState<AppPage>('home')
-  const [theme, setTheme] = useState<AppTheme>('light') // Golden & White by default
+  const [theme, setTheme] = useState<AppTheme>('ivory-gold') // Default: Ivory & Gold
 
   const [repoUrl, setRepoUrl] = useState(DEFAULT_REPO_URL)
   const [repoInfo, setRepoInfo] = useState<RepoInfo | null>(null)
@@ -61,7 +61,7 @@ export default function App() {
   // Connect repo modal
   const [connectModalOpen, setConnectModalOpen] = useState(false)
 
-  // Sync state (Zero automatic polling to preserve free API quota)
+  // Sync state
   const [syncState, setSyncState] = useState<SyncState>('synced')
 
   // Toasts
@@ -76,21 +76,15 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id))
   }, [])
 
-  // Apply theme class to document element
+  // Apply theme class to document element (supports all 4 themes)
   useEffect(() => {
     const root = document.documentElement
-    if (theme === 'dark') {
-      root.classList.add('dark', 'theme-dark')
-      root.classList.remove('theme-light')
-    } else {
-      root.classList.remove('dark', 'theme-dark')
-      root.classList.add('theme-light')
+    root.classList.remove('theme-ivory-gold', 'theme-obsidian-gold', 'theme-emerald-gold', 'theme-ruby-gold', 'dark')
+    root.classList.add(`theme-${theme}`)
+    if (theme !== 'ivory-gold') {
+      root.classList.add('dark')
     }
   }, [theme])
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
-  }
 
   // Rate limit tracking
   useEffect(() => {
@@ -235,13 +229,12 @@ export default function App() {
     [repoInfo, currentBranch, selectedFileNode, loadFile, addToast]
   )
 
-  // Manual on-demand refresh only (Zero automatic polling to conserve free API calls)
+  // Manual on-demand refresh only
   const handleManualRefresh = useCallback(async () => {
     if (!repoInfo || !currentBranch) return
     setSyncState('checking')
 
     try {
-      // Bypass commit cache on manual refresh
       const newCommit = await fetchLatestCommit(repoInfo.owner, repoInfo.name, currentBranch, true)
 
       if (latestCommit && newCommit.sha !== latestCommit.sha) {
@@ -305,7 +298,7 @@ export default function App() {
         activePage={activePage}
         onNavigate={setActivePage}
         theme={theme}
-        onToggleTheme={toggleTheme}
+        onSelectTheme={setTheme}
         repo={repoInfo}
         branches={branches}
         currentBranch={currentBranch}
@@ -328,7 +321,7 @@ export default function App() {
         )}
 
         {activePage === 'explorer' && (
-          <div className="h-[calc(100vh-61px)] flex flex-col overflow-hidden">
+          <div className="min-h-[750px] md:min-h-[820px] flex flex-col">
             <CodeExplorerPage
               repo={repoInfo}
               currentBranch={currentBranch}
@@ -354,7 +347,7 @@ export default function App() {
         )}
 
         {activePage === 'playground' && (
-          <div className="h-[calc(100vh-61px)] flex flex-col overflow-hidden">
+          <div className="min-h-[750px] md:min-h-[820px] flex flex-col">
             <PlaygroundPage
               repo={repoInfo}
               currentBranch={currentBranch}
@@ -373,16 +366,14 @@ export default function App() {
         )}
       </div>
 
-      {/* Comprehensive Footer (Visible on Home & Analytics pages) */}
-      {(activePage === 'home' || activePage === 'analytics') && (
-        <Footer
-          repo={repoInfo}
-          currentBranch={currentBranch}
-          onNavigate={setActivePage}
-          onOpenConnectModal={() => setConnectModalOpen(true)}
-          rateLimit={rateLimit}
-        />
-      )}
+      {/* Universal Footer — Displayed across EVERY page */}
+      <Footer
+        repo={repoInfo}
+        currentBranch={currentBranch}
+        onNavigate={setActivePage}
+        onOpenConnectModal={() => setConnectModalOpen(true)}
+        rateLimit={rateLimit}
+      />
 
       {/* Connect / Switch Repository Modal */}
       <ConnectRepoModal

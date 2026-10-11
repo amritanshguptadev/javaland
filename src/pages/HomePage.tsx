@@ -30,16 +30,8 @@ export const HomePage: React.FC<HomePageProps> = ({
       {/* Hero Section */}
       <section className="relative px-6 py-16 text-center border-b border-amber-200/50 dark:border-amber-500/20 bg-gradient-to-b from-amber-50/70 via-white to-transparent dark:from-amber-950/20 dark:via-slate-950 dark:to-slate-950">
         <div className="relative mx-auto max-w-4xl space-y-6">
-          {/* Eyebrow */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/80 bg-white/90 px-4 py-1.5 shadow-sm backdrop-blur dark:border-amber-500/30 dark:bg-slate-900/90">
-            <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-            <span className="text-xs font-black uppercase tracking-wider text-amber-800 dark:text-amber-300">
-              Curated Repository Studio • javascript-lab
-            </span>
-          </div>
-
           {/* Heading */}
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl md:text-6xl leading-tight">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
             Explore & Execute Code with <br />
             <span className="gold-gradient-text font-serif italic">Artisan Precision</span>
           </h1>
