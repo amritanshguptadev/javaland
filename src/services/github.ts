@@ -32,7 +32,22 @@ function updateRateLimitsFromHeaders(headers: Headers) {
       remaining: parseInt(remaining, 10),
       resetTime: parseInt(reset, 10) * 1000,
     }
+    // Save to session storage for instant restore across reloads
+    try {
+      sessionStorage.setItem('javaland_ratelimit', JSON.stringify(info))
+    } catch {
+      // ignore storage quota errors
+    }
     rateLimitListeners.forEach((l) => l(info))
+  }
+}
+
+export function getCachedRateLimit(): RateLimitInfo | null {
+  try {
+    const raw = sessionStorage.getItem('javaland_ratelimit')
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
   }
 }
 
@@ -40,7 +55,6 @@ export function parseRepoUrl(url: string): { owner: string; repo: string } | nul
   if (!url) return null
   const cleaned = url.trim().replace(/\/+$/, '')
 
-  // Matches https://github.com/owner/repo or github.com/owner/repo or owner/repo
   const fullUrlMatch = cleaned.match(
     /^(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)/i
   )
@@ -51,7 +65,6 @@ export function parseRepoUrl(url: string): { owner: string; repo: string } | nul
     }
   }
 
-  // Matches owner/repo format
   const shortMatch = cleaned.match(/^([a-zA-Z0-9_.-]+)\/([a-zA-Z0-9_.-]+)$/)
   if (shortMatch) {
     return {
@@ -84,13 +97,13 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
     if (remaining === '0') {
       const reset = response.headers.get('x-ratelimit-reset')
       const resetDate = reset ? new Date(parseInt(reset, 10) * 1000).toLocaleTimeString() : 'soon'
-      throw new Error(`GitHub API rate limit exceeded. Unauthenticated rate limit will reset at ${resetDate}.`)
+      throw new Error(`GitHub API rate limit exceeded. Free unauthenticated requests reset at ${resetDate}.`)
     }
     throw new Error('Access forbidden (403). Repository might be private or restricted.')
   }
 
   if (response.status === 404) {
-    throw new Error('Repository or resource not found (404). Please ensure the repository is public and the URL is spelled correctly.')
+    throw new Error('Repository or resource not found (404).')
   }
 
   if (!response.ok) {
@@ -99,7 +112,7 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
       const errJson = await response.json()
       if (errJson.message) msg = errJson.message
     } catch {
-      // ignore json parse error
+      // ignore
     }
     throw new Error(msg)
   }
@@ -107,19 +120,58 @@ async function apiRequest<T>(endpoint: string, options?: RequestInit): Promise<T
   return response.json()
 }
 
-// In-memory caches to save API requests and accelerate responses
-const fileCache = new Map<string, FileContentData>()
-const treeCache = new Map<string, { items: RawTreeItem[]; isTruncated: boolean }>()
+// Persistent Storage Helper to prevent burning API calls
+function getFromStorage<T>(key: string): T | null {
+  try {
+    const raw = sessionStorage.getItem(`jl_${key}`)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    // Check expiration if present
+    if (parsed.exp && Date.now() > parsed.exp) {
+      sessionStorage.removeItem(`jl_${key}`)
+      return null
+    }
+    return parsed.data
+  } catch {
+    return null
+  }
+}
+
+function setToStorage<T>(key: string, data: T, ttlMs?: number) {
+  try {
+    const payload = {
+      data,
+      exp: ttlMs ? Date.now() + ttlMs : undefined,
+    }
+    sessionStorage.setItem(`jl_${key}`, JSON.stringify(payload))
+  } catch {
+    // SessionStorage may be full or disabled, gracefully ignore
+  }
+}
 
 export function clearRepoCache() {
-  fileCache.clear()
-  treeCache.clear()
+  try {
+    const keysToRemove: string[] = []
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const k = sessionStorage.key(i)
+      if (k && k.startsWith('jl_')) {
+        keysToRemove.push(k)
+      }
+    }
+    keysToRemove.forEach((k) => sessionStorage.removeItem(k))
+  } catch {
+    // ignore
+  }
 }
 
 export async function fetchRepoDetails(owner: string, repo: string): Promise<RepoInfo> {
+  const cacheKey = `repo_${owner}_${repo}`
+  const cached = getFromStorage<RepoInfo>(cacheKey)
+  if (cached) return cached
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data: any = await apiRequest(`/repos/${owner}/${repo}`)
-  return {
+  const result: RepoInfo = {
     name: data.name,
     fullName: data.full_name,
     owner: data.owner?.login || owner,
@@ -135,26 +187,48 @@ export async function fetchRepoDetails(owner: string, repo: string): Promise<Rep
     createdAt: data.created_at || '',
     language: data.language || null,
   }
+
+  // Cache repo details for 30 minutes
+  setToStorage(cacheKey, result, 30 * 60 * 1000)
+  return result
 }
 
-export async function fetchRepoBranches(owner: string, repo: string, defaultBranchName: string): Promise<BranchInfo[]> {
+export async function fetchRepoBranches(
+  owner: string,
+  repo: string,
+  defaultBranchName: string
+): Promise<BranchInfo[]> {
+  const cacheKey = `branches_${owner}_${repo}`
+  const cached = getFromStorage<BranchInfo[]>(cacheKey)
+  if (cached) return cached
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const list: any[] = await apiRequest(`/repos/${owner}/${repo}/branches?per_page=100`)
-  return list.map((b) => ({
+  const result: BranchInfo[] = list.map((b) => ({
     name: b.name,
     commitSha: b.commit?.sha || '',
     isDefault: b.name === defaultBranchName,
   }))
+
+  setToStorage(cacheKey, result, 30 * 60 * 1000)
+  return result
 }
 
 export async function fetchLatestCommit(
   owner: string,
   repo: string,
-  ref: string
+  ref: string,
+  bypassCache = false
 ): Promise<GitCommitInfo> {
+  const cacheKey = `commit_${owner}_${repo}_${ref}`
+  if (!bypassCache) {
+    const cached = getFromStorage<GitCommitInfo>(cacheKey)
+    if (cached) return cached
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data: any = await apiRequest(`/repos/${owner}/${repo}/commits/${encodeURIComponent(ref)}`)
-  return {
+  const result: GitCommitInfo = {
     sha: data.sha,
     shortSha: (data.sha || '').substring(0, 7),
     message: data.commit?.message || 'No commit message',
@@ -162,6 +236,10 @@ export async function fetchLatestCommit(
     authorDate: data.commit?.author?.date || '',
     htmlUrl: data.html_url || `https://github.com/${owner}/${repo}/commit/${data.sha}`,
   }
+
+  // Cache commit for 5 minutes
+  setToStorage(cacheKey, result, 5 * 60 * 1000)
+  return result
 }
 
 export async function fetchRepoTree(
@@ -169,10 +247,10 @@ export async function fetchRepoTree(
   repo: string,
   treeSha: string
 ): Promise<{ items: RawTreeItem[]; isTruncated: boolean }> {
-  const cacheKey = `${owner}/${repo}:${treeSha}`
-  if (treeCache.has(cacheKey)) {
-    return treeCache.get(cacheKey)!
-  }
+  // Tree SHAs are immutable in Git, so we can cache them persistently!
+  const cacheKey = `tree_${treeSha}`
+  const cached = getFromStorage<{ items: RawTreeItem[]; isTruncated: boolean }>(cacheKey)
+  if (cached) return cached
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data: any = await apiRequest(
@@ -183,11 +261,11 @@ export async function fetchRepoTree(
   const isTruncated = Boolean(data.truncated)
 
   const result = { items, isTruncated }
-  treeCache.set(cacheKey, result)
+  setToStorage(cacheKey, result)
   return result
 }
 
-// Check whether a file is a binary image or media
+// Media & file detection
 const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico', 'bmp'])
 const BINARY_EXTENSIONS = new Set([
   'pdf', 'zip', 'tar', 'gz', '7z', 'rar', 'exe', 'dll', 'so', 'dylib',
@@ -228,10 +306,10 @@ export async function fetchFileContent(
   ref: string,
   knownSha?: string
 ): Promise<FileContentData> {
-  const cacheKey = `${owner}/${repo}:${path}:${knownSha || ref}`
-  if (fileCache.has(cacheKey)) {
-    return fileCache.get(cacheKey)!
-  }
+  // If knownSha is provided, file blobs are immutable and cached forever!
+  const cacheKey = knownSha ? `file_${knownSha}` : `file_${owner}_${repo}_${path}_${ref}`
+  const cached = getFromStorage<FileContentData>(cacheKey)
+  if (cached) return cached
 
   const encodedPath = path.split('/').map(encodeURIComponent).join('/')
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -252,7 +330,6 @@ export async function fetchFileContent(
   let contentText = ''
 
   if (isImage) {
-    // If it's an image, create a data URI if base64 available or fallback to raw downloadUrl
     if (data.content && data.encoding === 'base64') {
       const mime = ext === 'svg' ? 'image/svg+xml' : `image/${ext === 'jpg' ? 'jpeg' : ext}`
       contentText = `data:${mime};base64,${data.content.replace(/\n/g, '')}`
@@ -262,7 +339,6 @@ export async function fetchFileContent(
   } else if (isBinary) {
     contentText = ''
   } else {
-    // Plain text / source code
     if (data.content && data.encoding === 'base64') {
       try {
         contentText = decodeBase64Utf8(data.content)
@@ -270,7 +346,6 @@ export async function fetchFileContent(
         contentText = atob(data.content.replace(/\n/g, ''))
       }
     } else if (downloadUrl && size > 1000000) {
-      // Large file fallback
       const rawRes = await fetch(downloadUrl)
       contentText = await rawRes.text()
     } else if (data.content) {
@@ -290,6 +365,6 @@ export async function fetchFileContent(
     htmlUrl,
   }
 
-  fileCache.set(cacheKey, result)
+  setToStorage(cacheKey, result)
   return result
 }

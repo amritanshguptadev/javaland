@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   parseRepoUrl,
   fetchRepoDetails,
@@ -7,6 +7,7 @@ import {
   fetchRepoTree,
   fetchFileContent,
   onRateLimitChange,
+  getCachedRateLimit,
 } from './services/github'
 import { buildFileTree } from './utils/tree'
 import type {
@@ -21,14 +22,14 @@ import type {
   AppTheme,
 } from './types'
 import { Navbar } from './components/Navbar'
+import { Footer } from './components/Footer'
+import { ConnectRepoModal } from './components/ConnectRepoModal'
 import { HomePage } from './pages/HomePage'
 import { CodeExplorerPage } from './pages/CodeExplorerPage'
 import { PlaygroundPage } from './pages/PlaygroundPage'
 import { AnalyticsPage } from './pages/AnalyticsPage'
-import { SettingsPage } from './pages/SettingsPage'
 import { Toast } from './components/Toast'
 import type { ToastMessage } from './components/Toast'
-import { Crown } from 'lucide-react'
 
 const DEFAULT_REPO_URL = 'https://github.com/amritanshguptadev/javascript-lab'
 
@@ -36,7 +37,7 @@ export default function App() {
   const [activePage, setActivePage] = useState<AppPage>('home')
   const [theme, setTheme] = useState<AppTheme>('light') // Golden & White by default
 
-  const [, setRepoUrl] = useState(DEFAULT_REPO_URL)
+  const [repoUrl, setRepoUrl] = useState(DEFAULT_REPO_URL)
   const [repoInfo, setRepoInfo] = useState<RepoInfo | null>(null)
   const [branches, setBranches] = useState<BranchInfo[]>([])
   const [currentBranch, setCurrentBranch] = useState<string>('')
@@ -54,14 +55,14 @@ export default function App() {
   const [repoError, setRepoError] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
 
-  // Auto-Sync state
-  const [syncState, setSyncState] = useState<SyncState>('synced')
-  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
-  const [autoSyncEnabled, setAutoSyncEnabled] = useState(true)
-  const [syncIntervalMs, setSyncIntervalMs] = useState(60000)
-
   // Rate limit
-  const [rateLimit, setRateLimit] = useState<RateLimitInfo | null>(null)
+  const [rateLimit, setRateLimit] = useState<RateLimitInfo | null>(() => getCachedRateLimit())
+
+  // Connect repo modal
+  const [connectModalOpen, setConnectModalOpen] = useState(false)
+
+  // Sync state (Zero automatic polling to preserve free API quota)
+  const [syncState, setSyncState] = useState<SyncState>('synced')
 
   // Toasts
   const [toasts, setToasts] = useState<ToastMessage[]>([])
@@ -96,7 +97,7 @@ export default function App() {
     return onRateLimitChange((info) => setRateLimit(info))
   }, [])
 
-  // Connect and load repository
+  // Connect and load repository (utilizes persistent cache)
   const connectRepository = useCallback(
     async (url: string, targetBranchOverride?: string) => {
       const parsed = parseRepoUrl(url)
@@ -136,7 +137,6 @@ export default function App() {
         setTreeNodes(builtTree)
         setIsTreeTruncated(treeResult.isTruncated)
 
-        setLastSyncTime(new Date())
         setSyncState('synced')
 
         // Auto-select README.md if present
@@ -160,7 +160,7 @@ export default function App() {
     []
   )
 
-  // Load file content
+  // Load file content (uses immutable SHA caching)
   const loadFile = useCallback(
     async (
       owner: string,
@@ -212,14 +212,13 @@ export default function App() {
             setSelectedFileNode(null)
             setFileContentData(null)
             addToast({
-              title: 'File not found in branch',
-              description: `"${selectedFileNode.path}" is not present in branch ${branchName}.`,
+              title: 'File not in branch',
+              description: `"${selectedFileNode.path}" does not exist in branch ${branchName}.`,
               type: 'info',
             })
           }
         }
 
-        setLastSyncTime(new Date())
         setSyncState('synced')
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err)
@@ -236,96 +235,52 @@ export default function App() {
     [repoInfo, currentBranch, selectedFileNode, loadFile, addToast]
   )
 
-  // Sync check
-  const checkForUpdates = useCallback(
-    async (isManual = false) => {
-      if (!repoInfo || !currentBranch) return
+  // Manual on-demand refresh only (Zero automatic polling to conserve free API calls)
+  const handleManualRefresh = useCallback(async () => {
+    if (!repoInfo || !currentBranch) return
+    setSyncState('checking')
 
-      if (!autoSyncEnabled && !isManual) {
-        setSyncState('paused')
-        return
-      }
+    try {
+      // Bypass commit cache on manual refresh
+      const newCommit = await fetchLatestCommit(repoInfo.owner, repoInfo.name, currentBranch, true)
 
-      setSyncState('checking')
+      if (latestCommit && newCommit.sha !== latestCommit.sha) {
+        setLatestCommit(newCommit)
+        setIsTreeLoading(true)
+        const treeResult = await fetchRepoTree(repoInfo.owner, repoInfo.name, newCommit.sha)
+        const updatedTree = buildFileTree(treeResult.items)
+        setTreeNodes(updatedTree)
+        setIsTreeTruncated(treeResult.isTruncated)
 
-      try {
-        const newCommit = await fetchLatestCommit(repoInfo.owner, repoInfo.name, currentBranch)
-
-        if (latestCommit && newCommit.sha !== latestCommit.sha) {
-          setLatestCommit(newCommit)
-          setIsTreeLoading(true)
-          const treeResult = await fetchRepoTree(repoInfo.owner, repoInfo.name, newCommit.sha)
-          const updatedTree = buildFileTree(treeResult.items)
-          setTreeNodes(updatedTree)
-          setIsTreeTruncated(treeResult.isTruncated)
-
-          if (selectedFileNode) {
-            loadFile(repoInfo.owner, repoInfo.name, selectedFileNode, currentBranch)
-          }
-
-          addToast({
-            title: 'Repository Synchronized',
-            description: `New commit: "${newCommit.message.split('\n')[0]}" (${newCommit.shortSha})`,
-            type: 'success',
-          })
-        } else if (isManual) {
-          addToast({
-            title: 'Sanctuary Up to Date',
-            description: `Synchronized with commit ${newCommit.shortSha}.`,
-            type: 'info',
-          })
+        if (selectedFileNode) {
+          loadFile(repoInfo.owner, repoInfo.name, selectedFileNode, currentBranch)
         }
 
-        setLastSyncTime(new Date())
-        setSyncState('synced')
-      } catch (err: unknown) {
-        console.warn('Sync check warning:', err)
-        setSyncState('error')
-        if (isManual) {
-          const msg = err instanceof Error ? err.message : String(err)
-          addToast({
-            title: 'Sync Check Failed',
-            description: msg,
-            type: 'error',
-          })
-        }
-      } finally {
-        setIsTreeLoading(false)
+        addToast({
+          title: 'Repository Updated',
+          description: `New commit: "${newCommit.message.split('\n')[0]}" (${newCommit.shortSha})`,
+          type: 'success',
+        })
+      } else {
+        addToast({
+          title: 'Up to Date',
+          description: `Already synchronized with commit ${newCommit.shortSha}.`,
+          type: 'info',
+        })
       }
-    },
-    [repoInfo, currentBranch, autoSyncEnabled, latestCommit, selectedFileNode, loadFile, addToast]
-  )
-
-  const checkRef = useRef(checkForUpdates)
-  useEffect(() => {
-    checkRef.current = checkForUpdates
-  }, [checkForUpdates])
-
-  // Periodic polling
-  useEffect(() => {
-    if (!autoSyncEnabled) {
-      setSyncState('paused')
-      return
+      setSyncState('synced')
+    } catch (err: unknown) {
+      setSyncState('error')
+      const msg = err instanceof Error ? err.message : String(err)
+      addToast({
+        title: 'Check failed',
+        description: msg,
+        type: 'error',
+      })
+    } finally {
+      setIsTreeLoading(false)
     }
-
-    const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        checkRef.current(false)
-      }
-    }, syncIntervalMs)
-
-    return () => clearInterval(interval)
-  }, [autoSyncEnabled, syncIntervalMs])
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && autoSyncEnabled) {
-        checkRef.current(false)
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [autoSyncEnabled])
+  }, [repoInfo, currentBranch, latestCommit, selectedFileNode, loadFile, addToast])
 
   // Initial load
   useEffect(() => {
@@ -344,8 +299,8 @@ export default function App() {
   }, 0)
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-white text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 selection:bg-amber-500/30 selection:text-amber-800 dark:selection:text-amber-200">
-      {/* Top Luxury Navbar with Multi-Page Navigation */}
+    <div className="flex min-h-screen flex-col bg-white text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 selection:bg-amber-500/30 selection:text-amber-800 dark:selection:text-amber-200">
+      {/* Top Navbar */}
       <Navbar
         activePage={activePage}
         onNavigate={setActivePage}
@@ -356,57 +311,56 @@ export default function App() {
         currentBranch={currentBranch}
         onSelectBranch={handleSelectBranch}
         syncState={syncState}
-        lastSyncTime={lastSyncTime}
-        onManualRefresh={() => checkForUpdates(true)}
-        autoSyncEnabled={autoSyncEnabled}
-        onToggleAutoSync={() => setAutoSyncEnabled(!autoSyncEnabled)}
-        rateLimit={rateLimit}
+        onManualRefresh={handleManualRefresh}
+        onOpenConnectModal={() => setConnectModalOpen(true)}
       />
 
-      {/* Page Routing Views */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Main Page Content */}
+      <div className="flex-1 flex flex-col">
         {activePage === 'home' && (
           <HomePage
             repo={repoInfo}
             latestCommit={latestCommit}
             totalFiles={totalFilesCount}
-            isLoading={isRepoLoading}
-            error={repoError}
-            onConnect={(url) => connectRepository(url)}
             onNavigate={setActivePage}
+            onOpenConnectModal={() => setConnectModalOpen(true)}
           />
         )}
 
         {activePage === 'explorer' && (
-          <CodeExplorerPage
-            repo={repoInfo}
-            currentBranch={currentBranch}
-            tree={treeNodes}
-            isTreeTruncated={isTreeTruncated}
-            isTreeLoading={isTreeLoading}
-            selectedNode={selectedFileNode}
-            fileContent={fileContentData}
-            isFileLoading={isFileLoading}
-            fileError={fileError}
-            onSelectFile={(node) => {
-              if (repoInfo) {
-                loadFile(repoInfo.owner, repoInfo.name, node, currentBranch)
-              }
-            }}
-            onRetryFile={() => {
-              if (repoInfo && selectedFileNode) {
-                loadFile(repoInfo.owner, repoInfo.name, selectedFileNode, currentBranch)
-              }
-            }}
-          />
+          <div className="h-[calc(100vh-61px)] flex flex-col overflow-hidden">
+            <CodeExplorerPage
+              repo={repoInfo}
+              currentBranch={currentBranch}
+              tree={treeNodes}
+              isTreeTruncated={isTreeTruncated}
+              isTreeLoading={isTreeLoading}
+              selectedNode={selectedFileNode}
+              fileContent={fileContentData}
+              isFileLoading={isFileLoading}
+              fileError={fileError}
+              onSelectFile={(node) => {
+                if (repoInfo) {
+                  loadFile(repoInfo.owner, repoInfo.name, node, currentBranch)
+                }
+              }}
+              onRetryFile={() => {
+                if (repoInfo && selectedFileNode) {
+                  loadFile(repoInfo.owner, repoInfo.name, selectedFileNode, currentBranch)
+                }
+              }}
+            />
+          </div>
         )}
 
         {activePage === 'playground' && (
-          <PlaygroundPage
-            repo={repoInfo}
-            currentBranch={currentBranch}
-            tree={treeNodes}
-          />
+          <div className="h-[calc(100vh-61px)] flex flex-col overflow-hidden">
+            <PlaygroundPage
+              repo={repoInfo}
+              currentBranch={currentBranch}
+              tree={treeNodes}
+            />
+          </div>
         )}
 
         {activePage === 'analytics' && (
@@ -417,52 +371,28 @@ export default function App() {
             latestCommit={latestCommit}
           />
         )}
-
-        {activePage === 'settings' && (
-          <SettingsPage
-            theme={theme}
-            onToggleTheme={toggleTheme}
-            autoSyncEnabled={autoSyncEnabled}
-            onToggleAutoSync={() => setAutoSyncEnabled(!autoSyncEnabled)}
-            syncInterval={syncIntervalMs}
-            onChangeSyncInterval={setSyncIntervalMs}
-            rateLimit={rateLimit}
-            onClearCache={() => {
-              addToast({
-                title: 'Cache Purged',
-                description: 'Local repository cache has been cleared.',
-                type: 'info',
-              })
-            }}
-          />
-        )}
       </div>
 
-      {/* Footer Status Bar with Gold Accents */}
-      <footer className="border-t border-amber-200/60 bg-amber-50/50 px-4 py-1.5 text-[11px] text-slate-600 dark:border-amber-500/20 dark:bg-slate-950 dark:text-slate-400 flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 font-bold text-amber-700 dark:text-amber-400">
-            <Crown className="h-3.5 w-3.5" />
-            JavaLand Sanctuary
-          </span>
-          {repoInfo && (
-            <span className="hidden sm:inline">
-              Active: <strong className="text-slate-800 dark:text-slate-200">{repoInfo.fullName}</strong> ({currentBranch})
-            </span>
-          )}
-        </div>
+      {/* Comprehensive Footer (Visible on Home & Analytics pages) */}
+      {(activePage === 'home' || activePage === 'analytics') && (
+        <Footer
+          repo={repoInfo}
+          currentBranch={currentBranch}
+          onNavigate={setActivePage}
+          onOpenConnectModal={() => setConnectModalOpen(true)}
+          rateLimit={rateLimit}
+        />
+      )}
 
-        <div className="flex items-center gap-4">
-          <span>
-            Sync: <strong className={autoSyncEnabled ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500'}>{autoSyncEnabled ? `${syncIntervalMs / 1000}s` : 'Paused'}</strong>
-          </span>
-          {rateLimit && (
-            <span className="hidden md:inline">
-              API Quota: <strong className="text-amber-600 dark:text-amber-400">{rateLimit.remaining}</strong>/{rateLimit.limit}
-            </span>
-          )}
-        </div>
-      </footer>
+      {/* Connect / Switch Repository Modal */}
+      <ConnectRepoModal
+        isOpen={connectModalOpen}
+        onClose={() => setConnectModalOpen(false)}
+        currentUrl={repoUrl}
+        onConnect={(url) => connectRepository(url)}
+        isLoading={isRepoLoading}
+        error={repoError}
+      />
 
       {/* Toast Notifications */}
       <Toast toasts={toasts} onDismiss={dismissToast} />

@@ -69,6 +69,6 @@ export interface RateLimitInfo {
 
 export type SyncState = 'synced' | 'checking' | 'error' | 'paused'
 
-export type AppPage = 'home' | 'explorer' | 'playground' | 'analytics' | 'settings'
+export type AppPage = 'home' | 'explorer' | 'playground' | 'analytics'
 
 export type AppTheme = 'light' | 'dark'
