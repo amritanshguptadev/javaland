@@ -82,15 +82,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Active Repo Capsule with Switch Button */}
           {repo && (
-            <div className="hidden md:flex items-center gap-2 rounded-full border theme-border theme-surface-subtle pl-2.5 pr-1.5 py-1 text-xs">
-              <GithubIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
-              <span className="font-semibold theme-text-main max-w-[120px] truncate" title={repo.fullName}>
+            <div className="hidden md:flex items-center gap-2 rounded-full border theme-border theme-surface-subtle pl-3 pr-1.5 py-1 text-xs">
+              <span className="font-semibold theme-text-main max-w-[140px] truncate" title={repo.fullName}>
                 {repo.name}
               </span>
               <button
                 type="button"
                 onClick={onOpenConnectModal}
-                className="gold-button rounded-full px-2 py-0.5 text-[10px] font-bold cursor-pointer"
+                className="gold-button rounded-full px-2.5 py-0.5 text-[10px] font-bold cursor-pointer"
                 title="Switch repository or reload default javascript-lab"
               >
                 Switch
